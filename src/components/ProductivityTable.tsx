@@ -1,43 +1,60 @@
 
 import { Card } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const ProductivityTable = () => {
-  const data = [
-    { year: 2023, productivity: 3600 },
-    { year: 2022, productivity: 3600 },
-    { year: 2021, productivity: 3600 },
-    { year: 2020, productivity: 3720 },
-    { year: 2019, productivity: 3900 },
-    { year: 2018, productivity: 3600 },
-  ];
+  const data = {
+    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+    datasets: [
+      {
+        label: 'Produtividade (kg/ha)',
+        data: [3600, 3900, 3720, 3600, 3600, 3600],
+        backgroundColor: '#2980E8',
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Produtividade Histórica'
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        min: 3000,
+      }
+    }
+  };
 
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Produtividade histórica</h2>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Ano</TableHead>
-            <TableHead>Produtividade (kg/ha)</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((row) => (
-            <TableRow key={row.year}>
-              <TableCell>{row.year}</TableCell>
-              <TableCell>{row.productivity}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <Bar data={data} options={options} />
     </Card>
   );
 };
