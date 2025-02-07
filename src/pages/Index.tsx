@@ -10,6 +10,7 @@ import RainfallChart from '@/components/RainfallChart';
 import SoilHistory from '@/components/SoilHistory';
 import BiomassCharts from '@/components/BiomassCharts';
 import ProductivityTable from '@/components/ProductivityTable';
+import MapView from '@/components/MapView';
 
 const Index = () => {
   const { car } = useParams();
@@ -124,6 +125,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <PropertyInfo />
           <div className="space-y-8">
+            <MapView carFilter={car} />
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <ScoreCard title="Pluviometria" score="7.5/10" />
               <ScoreCard title="Biomassa" score="8/10" />
