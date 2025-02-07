@@ -1,6 +1,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { FileDown } from 'lucide-react';
+import { toast } from 'sonner';
 import PropertyInfo from '@/components/PropertyInfo';
 import ScoreCard from '@/components/ScoreCard';
 import MapView from '@/components/MapView';
@@ -38,6 +41,32 @@ const Index = () => {
     fetchData();
   }, [car, navigate]);
 
+  const handleDownloadPDF = async () => {
+    try {
+      // Esta chamada será substituída pela chamada real ao backend
+      const response = await fetch(`http://localhost:5000/api/export-report/${car}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) throw new Error('Erro ao exportar relatório');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-${car}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Relatório exportado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao exportar relatório");
+      console.error('Erro:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -55,6 +84,14 @@ const Index = () => {
             <h1 className="text-2xl font-semibold text-[#064C9F]">Relatório Histórico da Área</h1>
           </div>
           <div className="flex items-center space-x-4">
+            <Button
+              onClick={handleDownloadPDF}
+              variant="outline"
+              className="flex items-center gap-2 text-[#064C9F] border-[#064C9F] hover:bg-[#064C9F] hover:text-white"
+            >
+              <FileDown className="h-4 w-4" />
+              Baixar PDF
+            </Button>
             <button
               onClick={() => navigate('/')}
               className="px-4 py-2 text-[#064C9F] hover:bg-[#F3F4F6] rounded-md transition-colors"
