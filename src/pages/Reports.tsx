@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileDown } from 'lucide-react';
+import MapView from '@/components/MapView';
 import {
   Table,
   TableBody,
@@ -125,7 +126,9 @@ const Reports = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <MapView />
+        
         <Card className="p-6">
           <Table>
             <TableHeader>
