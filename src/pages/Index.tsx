@@ -17,17 +17,23 @@ const Index = () => {
   const navigate = useNavigate();
   const [propertyData, setPropertyData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
-    // This will be replaced with actual Flask backend call
     const fetchData = async () => {
       try {
-        // Aqui você adicionará o CAR como parâmetro na chamada ao backend
+        console.log('Fetching data for CAR:', car);
         const response = await fetch(`http://localhost:5000/api/property-data/${car}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         setPropertyData(data);
       } catch (error) {
         console.error('Error fetching data:', error);
+        toast.error("Erro ao carregar dados da propriedade");
       } finally {
         setLoading(false);
       }
@@ -42,13 +48,22 @@ const Index = () => {
   }, [car, navigate]);
 
   const handleDownloadPDF = async () => {
+    if (downloading) return;
+    
     try {
-      // Esta chamada será substituída pela chamada real ao backend
+      setDownloading(true);
+      console.log('Downloading PDF for CAR:', car);
+      
       const response = await fetch(`http://localhost:5000/api/export-report/${car}`, {
         method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
       });
 
-      if (!response.ok) throw new Error('Erro ao exportar relatório');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -62,8 +77,10 @@ const Index = () => {
 
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
-      toast.error("Erro ao exportar relatório");
-      console.error('Erro:', error);
+      console.error('Erro ao exportar:', error);
+      toast.error("Erro ao exportar relatório. Por favor, tente novamente.");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -88,9 +105,10 @@ const Index = () => {
               onClick={handleDownloadPDF}
               variant="outline"
               className="flex items-center gap-2 text-[#064C9F] border-[#064C9F] hover:bg-[#064C9F] hover:text-white"
+              disabled={downloading}
             >
               <FileDown className="h-4 w-4" />
-              Baixar PDF
+              {downloading ? 'Exportando...' : 'Baixar PDF'}
             </Button>
             <button
               onClick={() => navigate('/')}

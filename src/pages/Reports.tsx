@@ -25,6 +25,7 @@ interface Report {
 const Reports = () => {
   const navigate = useNavigate();
   const [selectedCars, setSelectedCars] = useState<string[]>([]);
+  const [exporting, setExporting] = useState(false);
   
   // Dados mockados - serão substituídos pela chamada ao backend Flask
   const reports: Report[] = [
@@ -62,17 +63,24 @@ const Reports = () => {
       return;
     }
 
+    if (exporting) return;
+
     try {
-      // Esta chamada será substituída pela chamada real ao backend
+      setExporting(true);
+      console.log('Exporting PDFs for CARs:', selectedCars);
+      
       const response = await fetch('http://localhost:5000/api/export-reports', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/pdf',
         },
         body: JSON.stringify({ cars: selectedCars }),
       });
 
-      if (!response.ok) throw new Error('Erro ao exportar relatórios');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -87,8 +95,10 @@ const Reports = () => {
       toast.success("Relatórios exportados com sucesso!");
       setSelectedCars([]);
     } catch (error) {
-      toast.error("Erro ao exportar relatórios");
-      console.error('Erro:', error);
+      console.error('Erro ao exportar:', error);
+      toast.error("Erro ao exportar relatórios. Por favor, tente novamente.");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -105,10 +115,10 @@ const Reports = () => {
               onClick={handleExportSelected}
               variant="outline"
               className="flex items-center gap-2 text-[#064C9F] border-[#064C9F] hover:bg-[#064C9F] hover:text-white"
-              disabled={selectedCars.length === 0}
+              disabled={selectedCars.length === 0 || exporting}
             >
               <FileDown className="h-4 w-4" />
-              Exportar Selecionados
+              {exporting ? 'Exportando...' : 'Exportar Selecionados'}
             </Button>
             <img src="/merx-logo.png" alt="MERX" className="h-8" />
           </div>
