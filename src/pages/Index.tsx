@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import PropertyInfo from '@/components/PropertyInfo';
 import ScoreCard from '@/components/ScoreCard';
 import MapView from '@/components/MapView';
@@ -9,6 +10,8 @@ import BiomassCharts from '@/components/BiomassCharts';
 import ProductivityTable from '@/components/ProductivityTable';
 
 const Index = () => {
+  const { car } = useParams();
+  const navigate = useNavigate();
   const [propertyData, setPropertyData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,7 +19,8 @@ const Index = () => {
     // This will be replaced with actual Flask backend call
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/property-data');
+        // Aqui você adicionará o CAR como parâmetro na chamada ao backend
+        const response = await fetch(`http://localhost:5000/api/property-data/${car}`);
         const data = await response.json();
         setPropertyData(data);
       } catch (error) {
@@ -26,8 +30,13 @@ const Index = () => {
       }
     };
 
+    if (!car) {
+      navigate('/');
+      return;
+    }
+
     fetchData();
-  }, []);
+  }, [car, navigate]);
 
   if (loading) {
     return (
@@ -45,7 +54,15 @@ const Index = () => {
             <img src="/lovable-uploads/6cbc2bc4-80af-4178-a42d-1b3be3dca26c.png" alt="Logo" className="h-8" />
             <h1 className="text-2xl font-semibold text-[#064C9F]">Relatório Histórico da Área</h1>
           </div>
-          <img src="/merx-logo.png" alt="MERX" className="h-8" />
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 text-[#064C9F] hover:bg-[#F3F4F6] rounded-md transition-colors"
+            >
+              Voltar
+            </button>
+            <img src="/merx-logo.png" alt="MERX" className="h-8" />
+          </div>
         </div>
       </header>
 
