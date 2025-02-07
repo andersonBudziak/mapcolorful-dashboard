@@ -12,7 +12,11 @@ import Polygon from 'ol/geom/Polygon';
 import { Fill, Stroke, Style } from 'ol/style';
 import 'ol/ol.css';
 
-const MapView = () => {
+interface MapViewProps {
+  carFilter?: string;
+}
+
+const MapView = ({ carFilter }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -20,34 +24,45 @@ const MapView = () => {
 
     // Criar algumas geometrias fake para teste
     const fakeGeometries = [
-      // Polígono 1 - área maior
-      [[
-        [-45.6789, -12.3456],
-        [-45.6589, -12.3456],
-        [-45.6589, -12.3256],
-        [-45.6789, -12.3256],
-        [-45.6789, -12.3456],
-      ]],
-      // Polígono 2 - área menor próxima
-      [[
-        [-45.6889, -12.3556],
-        [-45.6789, -12.3556],
-        [-45.6789, -12.3456],
-        [-45.6889, -12.3456],
-        [-45.6889, -12.3556],
-      ]],
-      // Polígono 3 - área em outro local
-      [[
-        [-45.7089, -12.3756],
-        [-45.6989, -12.3756],
-        [-45.6989, -12.3656],
-        [-45.7089, -12.3656],
-        [-45.7089, -12.3756],
-      ]]
+      {
+        car: "123456789",
+        coords: [[
+          [-45.6789, -12.3456],
+          [-45.6589, -12.3456],
+          [-45.6589, -12.3256],
+          [-45.6789, -12.3256],
+          [-45.6789, -12.3456],
+        ]]
+      },
+      {
+        car: "987654321",
+        coords: [[
+          [-45.6889, -12.3556],
+          [-45.6789, -12.3556],
+          [-45.6789, -12.3456],
+          [-45.6889, -12.3456],
+          [-45.6889, -12.3556],
+        ]]
+      },
+      {
+        car: "123456789",
+        coords: [[
+          [-45.7089, -12.3756],
+          [-45.6989, -12.3756],
+          [-45.6989, -12.3656],
+          [-45.7089, -12.3656],
+          [-45.7089, -12.3756],
+        ]]
+      }
     ];
 
+    // Filtrar geometrias se houver um CAR específico
+    const filteredGeometries = carFilter 
+      ? fakeGeometries.filter(geom => geom.car === carFilter)
+      : fakeGeometries;
+
     // Criar features para cada geometria
-    const features = fakeGeometries.map(coords => {
+    const features = filteredGeometries.map(({ coords }) => {
       const polygon = new Polygon([coords[0].map(coord => fromLonLat(coord))]);
       return new Feature({
         geometry: polygon,
@@ -98,7 +113,7 @@ const MapView = () => {
     });
 
     return () => map.setTarget(undefined);
-  }, []);
+  }, [carFilter]);
 
   return (
     <div className="rounded-lg overflow-hidden shadow-md">
