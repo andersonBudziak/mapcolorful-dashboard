@@ -49,9 +49,18 @@ const Index = () => {
       setDownloading(true);
       console.log('Downloading PDF for CAR:', car);
       
-      // Temporarily simulate PDF download with a generated PDF
-      const text = `Relatório da Propriedade - CAR: ${car}`;
-      const blob = new Blob([text], { type: 'application/pdf' });
+      const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
