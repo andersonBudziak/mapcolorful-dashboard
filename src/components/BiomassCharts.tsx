@@ -14,6 +14,7 @@ import { Line } from 'react-chartjs-2';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import biomassExample from '../../api-docs/examples/biomass.json';
 
 ChartJS.register(
   CategoryScale,
@@ -31,11 +32,8 @@ interface BiomassData {
 }
 
 const fetchBiomassData = async (car: string): Promise<BiomassData[]> => {
-  const response = await fetch(`http://localhost:8000/api/biomass/${car}`);
-  if (!response.ok) {
-    throw new Error('Erro ao buscar dados de biomassa');
-  }
-  return response.json();
+  // Temporariamente usando dados de exemplo
+  return biomassExample;
 };
 
 const BiomassCharts = () => {

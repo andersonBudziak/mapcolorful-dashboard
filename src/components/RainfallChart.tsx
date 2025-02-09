@@ -13,6 +13,7 @@ import { Bar } from 'react-chartjs-2';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import rainfallExample from '../../api-docs/examples/rainfall.json';
 
 ChartJS.register(
   CategoryScale,
@@ -29,11 +30,8 @@ interface RainfallData {
 }
 
 const fetchRainfallData = async (car: string): Promise<RainfallData[]> => {
-  const response = await fetch(`http://localhost:8000/api/rainfall/${car}`);
-  if (!response.ok) {
-    throw new Error('Erro ao buscar dados de pluviosidade');
-  }
-  return response.json();
+  // Temporariamente usando dados de exemplo
+  return rainfallExample;
 };
 
 const RainfallChart = () => {

@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -13,17 +12,15 @@ import GeoJSON from 'ol/format/GeoJSON';
 import { Fill, Stroke, Style } from 'ol/style';
 import { toast } from 'sonner';
 import 'ol/ol.css';
+import geoJsonExample from '../../api-docs/examples/geojson.json';
 
 interface MapViewProps {
   carFilter?: string;
 }
 
 const fetchMapData = async () => {
-  const response = await fetch('http://localhost:8000/api/properties/geojson');
-  if (!response.ok) {
-    throw new Error('Erro ao carregar dados do mapa');
-  }
-  return response.json();
+  // Temporariamente usando dados de exemplo
+  return geoJsonExample;
 };
 
 const MapView = ({ carFilter }: MapViewProps) => {
