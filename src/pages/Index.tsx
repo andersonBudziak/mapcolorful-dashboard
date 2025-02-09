@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -48,18 +49,9 @@ const Index = () => {
       setDownloading(true);
       console.log('Downloading PDF for CAR:', car);
       
-      const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
+      // Temporarily simulate PDF download with a generated PDF
+      const text = `Relatório da Propriedade - CAR: ${car}`;
+      const blob = new Blob([text], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

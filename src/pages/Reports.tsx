@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,20 +69,9 @@ const Reports = () => {
       setExporting(true);
       console.log('Exporting PDFs for CARs:', selectedCars);
       
-      const response = await fetch('http://localhost:8000/api/reports/batch-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/pdf',
-        },
-        body: JSON.stringify({ cars: selectedCars }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
+      // Temporarily simulate batch PDF download
+      const text = selectedCars.map(car => `Relatório da Propriedade - CAR: ${car}`).join('\n\n');
+      const blob = new Blob([text], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
