@@ -10,6 +10,9 @@ import {
   Legend
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 ChartJS.register(
   CategoryScale,
@@ -20,13 +23,48 @@ ChartJS.register(
   Legend
 );
 
+interface RainfallData {
+  month: string;
+  value: number;
+}
+
+const fetchRainfallData = async (car: string): Promise<RainfallData[]> => {
+  const response = await fetch(`http://localhost:8000/api/rainfall/${car}`);
+  if (!response.ok) {
+    throw new Error('Erro ao buscar dados de pluviosidade');
+  }
+  return response.json();
+};
+
 const RainfallChart = () => {
+  const { car } = useParams();
+  const { data: rainfallData, isLoading, error } = useQuery({
+    queryKey: ['rainfall', car],
+    queryFn: () => fetchRainfallData(car || ''),
+    enabled: !!car,
+  });
+
+  if (error) {
+    toast.error("Erro ao carregar dados de pluviosidade");
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Pluviosidade</h2>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
+        </div>
+      </Card>
+    );
+  }
+
   const data = {
-    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+    labels: rainfallData?.map(item => item.month) || [],
     datasets: [
       {
         label: 'Precipitação (mm)',
-        data: [65, 59, 80, 81, 56, 55, 40, 30, 45, 85, 90, 70],
+        data: rainfallData?.map(item => item.value) || [],
         backgroundColor: '#2980E8',
       }
     ]

@@ -11,6 +11,9 @@ import {
   Legend
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 ChartJS.register(
   CategoryScale,
@@ -22,7 +25,54 @@ ChartJS.register(
   Legend
 );
 
+interface BiomassData {
+  month: string;
+  ndvi: number;
+}
+
+const fetchBiomassData = async (car: string): Promise<BiomassData[]> => {
+  const response = await fetch(`http://localhost:8000/api/biomass/${car}`);
+  if (!response.ok) {
+    throw new Error('Erro ao buscar dados de biomassa');
+  }
+  return response.json();
+};
+
 const BiomassCharts = () => {
+  const { car } = useParams();
+  const { data: biomassData, isLoading, error } = useQuery({
+    queryKey: ['biomass', car],
+    queryFn: () => fetchBiomassData(car || ''),
+    enabled: !!car,
+  });
+
+  if (error) {
+    toast.error("Erro ao carregar dados de biomassa");
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Biomassa</h2>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  const data = {
+    labels: biomassData?.map(item => item.month) || [],
+    datasets: [
+      {
+        label: 'NDVI',
+        data: biomassData?.map(item => item.ndvi) || [],
+        borderColor: '#064C9F',
+        backgroundColor: 'rgba(6, 76, 159, 0.5)',
+      }
+    ]
+  };
+
   const options = {
     responsive: true,
     plugins: {
@@ -30,18 +80,6 @@ const BiomassCharts = () => {
         position: 'top' as const,
       }
     }
-  };
-
-  const data = {
-    labels: Array.from({ length: 12 }, (_, i) => `Mês ${i + 1}`),
-    datasets: [
-      {
-        label: 'NDVI',
-        data: Array.from({ length: 12 }, () => Math.random() * 0.8 + 0.2),
-        borderColor: '#064C9F',
-        backgroundColor: 'rgba(6, 76, 159, 0.5)',
-      }
-    ]
   };
 
   return (
