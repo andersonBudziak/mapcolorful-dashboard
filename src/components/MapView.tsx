@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -8,85 +9,61 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import OSM from 'ol/source/OSM';
 import { fromLonLat } from 'ol/proj';
-import Feature from 'ol/Feature';
-import Polygon from 'ol/geom/Polygon';
+import GeoJSON from 'ol/format/GeoJSON';
 import { Fill, Stroke, Style } from 'ol/style';
+import { toast } from 'sonner';
 import 'ol/ol.css';
 
 interface MapViewProps {
   carFilter?: string;
 }
 
+const fetchMapData = async () => {
+  const response = await fetch('http://localhost:8000/api/properties/geojson');
+  if (!response.ok) {
+    throw new Error('Erro ao carregar dados do mapa');
+  }
+  return response.json();
+};
+
 const MapView = ({ carFilter }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
+  const { data: geoJsonData, isLoading, error } = useQuery({
+    queryKey: ['mapData'],
+    queryFn: fetchMapData,
+  });
+
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || isLoading || error) return;
 
-    // Criar algumas geometrias fake para teste
-    const fakeGeometries = [
-      {
-        car: "123456789",
-        coords: [[
-          [-45.6789, -12.3456],
-          [-45.6589, -12.3456],
-          [-45.6589, -12.3256],
-          [-45.6789, -12.3256],
-          [-45.6789, -12.3456],
-        ]]
-      },
-      {
-        car: "987654321",
-        coords: [[
-          [-45.6889, -12.3556],
-          [-45.6789, -12.3556],
-          [-45.6789, -12.3456],
-          [-45.6889, -12.3456],
-          [-45.6889, -12.3556],
-        ]]
-      },
-      {
-        car: "123456789",
-        coords: [[
-          [-45.7089, -12.3756],
-          [-45.6989, -12.3756],
-          [-45.6989, -12.3656],
-          [-45.7089, -12.3656],
-          [-45.7089, -12.3756],
-        ]]
-      }
-    ];
+    // Filtrar features se houver um CAR específico
+    const filteredFeatures = carFilter 
+      ? {
+          ...geoJsonData,
+          features: geoJsonData.features.filter((feature: any) => 
+            feature.properties.property_id === carFilter
+          )
+        }
+      : geoJsonData;
 
-    // Filtrar geometrias se houver um CAR específico
-    const filteredGeometries = carFilter 
-      ? fakeGeometries.filter(geom => geom.car === carFilter)
-      : fakeGeometries;
-
-    // Criar features para cada geometria
-    const features = filteredGeometries.map(({ coords, car }) => {
-      const polygon = new Polygon([coords[0].map(coord => fromLonLat(coord))]);
-      const feature = new Feature({
-        geometry: polygon,
-      });
-      feature.set('car', car); // Adicionar CAR como propriedade da feature
-      return feature;
+    // Criar source e layer vetorial
+    const vectorSource = new VectorSource({
+      features: new GeoJSON().readFeatures(filteredFeatures, {
+        featureProjection: 'EPSG:3857'
+      })
     });
 
     // Estilo para os polígonos
     const polygonStyle = new Style({
       fill: new Fill({
-        color: 'rgba(100, 149, 237, 0.3)', // Azul claro semi-transparente
+        color: 'rgba(100, 149, 237, 0.3)',
       }),
       stroke: new Stroke({
         color: '#064C9F',
         width: 2,
       }),
-    });
-
-    // Criar source e layer vetorial
-    const vectorSource = new VectorSource({
-      features: features,
     });
 
     const vectorLayer = new VectorLayer({
@@ -116,9 +93,9 @@ const MapView = ({ carFilter }: MapViewProps) => {
       });
       
       if (feature) {
-        const car = feature.get('car');
-        if (car && !carFilter) { // Só navega se não estiver já em um relatório específico
-          navigate(`/report/${car}`);
+        const propertyId = feature.get('property_id');
+        if (propertyId && !carFilter) {
+          navigate(`/report/${propertyId}`);
         }
       }
     });
@@ -139,8 +116,32 @@ const MapView = ({ carFilter }: MapViewProps) => {
       });
     }
 
+    if (error) {
+      toast.error("Erro ao carregar dados do mapa");
+    }
+
     return () => map.setTarget(undefined);
-  }, [carFilter, navigate]);
+  }, [carFilter, navigate, geoJsonData, isLoading, error]);
+
+  if (isLoading) {
+    return (
+      <div className="rounded-lg overflow-hidden shadow-md">
+        <div className="h-[400px] w-full flex items-center justify-center bg-gray-100">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg overflow-hidden shadow-md">
+        <div className="h-[400px] w-full flex items-center justify-center bg-gray-100">
+          <p className="text-red-500">Erro ao carregar o mapa</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-lg overflow-hidden shadow-md">
