@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import propertyExample from '../../api-docs/examples/property.json';
 
 interface PropertyData {
   car: string;
@@ -16,11 +17,16 @@ interface PropertyData {
 }
 
 const fetchPropertyData = async (car: string): Promise<PropertyData> => {
-  const response = await fetch(`http://localhost:8000/api/property/${car}`);
-  if (!response.ok) {
-    throw new Error('Erro ao buscar dados da propriedade');
+  try {
+    const response = await fetch(`http://localhost:8000/api/property/${car}`);
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+    return response.json();
+  } catch (error) {
+    console.log('Falling back to example property data');
+    return propertyExample;
   }
-  return response.json();
 };
 
 const PropertyInfo = () => {

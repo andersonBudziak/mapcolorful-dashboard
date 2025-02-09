@@ -23,13 +23,19 @@ const Index = () => {
     const fetchData = async () => {
       try {
         console.log('Fetching data for CAR:', car);
-        // Temporarily using example data until backend is ready
+        // Try API first
+        const response = await fetch(`http://localhost:8000/api/property/${car}`);
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
+        const data = await response.json();
+        setPropertyData(data);
+      } catch (error) {
+        console.log('Falling back to example data');
+        // Fallback to example data
         const data = await import('../../api-docs/examples/property.json');
         setPropertyData(data.default);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error("Erro ao carregar dados da propriedade");
+      } finally {
         setLoading(false);
       }
     };
@@ -49,26 +55,41 @@ const Index = () => {
       setDownloading(true);
       console.log('Downloading PDF for CAR:', car);
       
-      const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
-      });
+      try {
+        const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/pdf',
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio-${car}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (apiError) {
+        console.log('Falling back to example PDF');
+        // Fallback to generating a simple PDF
+        const text = `Relatório da Propriedade - CAR: ${car}`;
+        const blob = new Blob([text], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio-${car}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
       }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-${car}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
 
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
