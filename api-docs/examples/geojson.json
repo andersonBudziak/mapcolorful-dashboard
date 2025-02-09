@@ -1,0 +1,19 @@
+
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-45.6789, -12.3456], [-45.6790, -12.3457], [-45.6791, -12.3458], [-45.6789, -12.3456]]]
+      },
+      "properties": {
+        "property_id": "123",
+        "name": "Fazenda Exemplo",
+        "municipality": "São Paulo",
+        "state": "SP"
+      }
+    }
+  ]
+}
