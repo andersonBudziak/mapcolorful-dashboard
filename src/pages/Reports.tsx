@@ -70,7 +70,7 @@ const Reports = () => {
       setExporting(true);
       console.log('Exporting PDFs for CARs:', selectedCars);
       
-      const response = await fetch('http://localhost:5000/api/export-reports', {
+      const response = await fetch('http://localhost:8000/api/reports/batch-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

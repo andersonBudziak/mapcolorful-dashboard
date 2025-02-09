@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,18 +22,13 @@ const Index = () => {
     const fetchData = async () => {
       try {
         console.log('Fetching data for CAR:', car);
-        const response = await fetch(`http://localhost:5000/api/property-data/${car}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setPropertyData(data);
+        // Temporarily using example data until backend is ready
+        const data = await import('../../api-docs/examples/property.json');
+        setPropertyData(data.default);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error("Erro ao carregar dados da propriedade");
-      } finally {
         setLoading(false);
       }
     };
@@ -54,7 +48,7 @@ const Index = () => {
       setDownloading(true);
       console.log('Downloading PDF for CAR:', car);
       
-      const response = await fetch(`http://localhost:5000/api/export-report/${car}`, {
+      const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
         method: 'GET',
         headers: {
           'Accept': 'application/pdf',
