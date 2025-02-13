@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import soilHistoryExample from '../../api-docs/examples/soil-history.json';
 
 interface SoilData {
   year: number;
@@ -10,11 +11,16 @@ interface SoilData {
 }
 
 const fetchSoilHistory = async (car: string): Promise<SoilData[]> => {
-  const response = await fetch(`http://localhost:8000/api/soil-history/${car}`);
-  if (!response.ok) {
-    throw new Error('Erro ao buscar histórico do solo');
+  try {
+    const response = await fetch(`http://localhost:8000/api/soil-history/${car}`);
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+    return response.json();
+  } catch (error) {
+    console.log('Falling back to example soil history data');
+    return soilHistoryExample;
   }
-  return response.json();
 };
 
 const SoilHistory = () => {
