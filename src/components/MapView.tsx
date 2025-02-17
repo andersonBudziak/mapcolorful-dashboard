@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -6,7 +7,7 @@ import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import OSM from 'ol/source/OSM';
+import XYZ from 'ol/source/XYZ';
 import { fromLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Fill, Stroke, Style } from 'ol/style';
@@ -55,10 +56,10 @@ const MapView = ({ carFilter }: MapViewProps) => {
     // Estilo para os polígonos
     const polygonStyle = new Style({
       fill: new Fill({
-        color: 'rgba(100, 149, 237, 0.3)',
+        color: 'rgba(0, 155, 77, 0.3)', // Verde MERX com transparência
       }),
       stroke: new Stroke({
-        color: '#064C9F',
+        color: '#009B4D', // Verde MERX
         width: 2,
       }),
     });
@@ -68,12 +69,16 @@ const MapView = ({ carFilter }: MapViewProps) => {
       style: polygonStyle,
     });
 
-    // Criar o mapa
+    // Criar o mapa com camada base ESRI
     const map = new Map({
       target: mapRef.current,
       layers: [
         new TileLayer({
-          source: new OSM()
+          source: new XYZ({
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            attributions: 'Tiles © <a href="https://www.esri.com">ESRI</a>',
+            maxZoom: 19
+          })
         }),
         vectorLayer
       ],
@@ -124,7 +129,7 @@ const MapView = ({ carFilter }: MapViewProps) => {
     return (
       <div className="rounded-lg overflow-hidden shadow-md">
         <div className="h-[400px] w-full flex items-center justify-center bg-gray-100">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-merx-primary"></div>
         </div>
       </div>
     );
