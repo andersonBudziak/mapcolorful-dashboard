@@ -1,8 +1,6 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { FileDown, Droplets, Leaf, Layers, TrendingUp, Earth } from 'lucide-react';
-import { toast } from 'sonner';
 import PropertyInfo from '@/components/PropertyInfo';
 import ScoreCard from '@/components/ScoreCard';
 import RainfallChart from '@/components/RainfallChart';
@@ -10,13 +8,13 @@ import SoilHistory from '@/components/SoilHistory';
 import BiomassCharts from '@/components/BiomassCharts';
 import ProductivityTable from '@/components/ProductivityTable';
 import MapView from '@/components/MapView';
+import { Droplets, Leaf, Layers, TrendingUp, Earth } from 'lucide-react';
 
 const Index = () => {
   const { car } = useParams();
   const navigate = useNavigate();
   const [propertyData, setPropertyData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,52 +43,6 @@ const Index = () => {
     fetchData();
   }, [car, navigate]);
 
-  const handleDownloadPDF = async () => {
-    if (downloading) return;
-    
-    setDownloading(true);
-    toast.loading("Gerando relatório...");
-    
-    try {
-      const content = `
-Relatório da Propriedade
-CAR: ${car}
-Data: ${new Date().toLocaleDateString()}
-
-Informações da Propriedade
--------------------------
-Nome: ${propertyData?.name || 'N/A'}
-Proprietário: ${propertyData?.owner || 'N/A'}
-Município: ${propertyData?.municipality || 'N/A'}
-Estado: ${propertyData?.state || 'N/A'}
-Área: ${propertyData?.area || 'N/A'} ha
-
-Este é um relatório gerado automaticamente com dados de exemplo.
-      `.trim();
-      
-      const blob = new Blob([content], { type: 'application/pdf' });
-      
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-${car}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast.dismiss();
-      toast.success("Relatório exportado com sucesso!");
-    } catch (error) {
-      console.error('Erro ao exportar:', error);
-      toast.dismiss();
-      toast.error("Erro ao gerar o relatório. Por favor, tente novamente.");
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -108,15 +60,6 @@ Este é um relatório gerado automaticamente com dados de exemplo.
             <h1 className="text-2xl font-semibold text-[#064C9F]">Relatório Histórico da Área</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              onClick={handleDownloadPDF}
-              variant="outline"
-              className="flex items-center gap-2 text-[#064C9F] border-[#064C9F] hover:bg-[#064C9F] hover:text-white"
-              disabled={downloading}
-            >
-              <FileDown className="h-4 w-4" />
-              {downloading ? 'Exportando...' : 'Baixar PDF'}
-            </Button>
             <button
               onClick={() => navigate('/')}
               className="px-4 py-2 text-[#064C9F] hover:bg-[#F3F4F6] rounded-md transition-colors"
