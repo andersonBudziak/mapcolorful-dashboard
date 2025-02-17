@@ -4,45 +4,78 @@
 @tailwind utilities;
  
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+  body {
+    @apply bg-merx-background text-merx-text font-sans font-normal;
+  }
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-merx-text;
+  }
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
- 
-    --radius: 0.5rem;
+  input, select, textarea {
+    @apply bg-white border border-merx-border text-merx-text placeholder-merx-placeholder 
+           focus:border-merx-primary focus:ring-1 focus:ring-merx-primary rounded-md 
+           hover:border-[#A0A0A0] transition-colors;
   }
 }
- 
-@layer base {
-  * {
-    @apply border-border;
+
+@layer components {
+  .btn-primary {
+    @apply bg-merx-primary text-white px-4 py-2 rounded-md 
+           hover:bg-merx-button-hover-primary transition-colors 
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  body {
-    @apply bg-background text-foreground;
+  
+  .btn-secondary {
+    @apply bg-merx-button-secondary text-white px-4 py-2 rounded-md 
+           hover:bg-merx-button-hover-secondary transition-colors
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-cancel {
+    @apply bg-merx-error text-white px-4 py-2 rounded-md 
+           hover:bg-merx-button-hover-cancel transition-colors
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white border border-merx-border rounded-lg shadow-merx p-4;
+  }
+
+  .modal {
+    @apply bg-white border border-merx-border rounded-lg shadow-merx-modal p-6;
+  }
+
+  .table-merx {
+    @apply w-full border-collapse;
+  }
+
+  .table-merx thead {
+    @apply bg-merx-table-header;
+  }
+
+  .table-merx th {
+    @apply text-merx-secondary font-semibold p-3 text-left border-b border-merx-border;
+  }
+
+  .table-merx tr:nth-child(even) {
+    @apply bg-merx-table-alternate;
+  }
+
+  .table-merx td {
+    @apply p-3 border-b border-merx-border;
+  }
+
+  .status-available {
+    @apply text-merx-success;
+  }
+
+  .status-processing {
+    @apply text-merx-warning;
+  }
+
+  .status-error {
+    @apply text-merx-error;
   }
 }
 
