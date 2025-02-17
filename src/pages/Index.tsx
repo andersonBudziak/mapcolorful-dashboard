@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FileDown, Droplets, Leaf, Layers, TrendingUp } from 'lucide-react';
+import { FileDown, Droplets, Leaf, Layers, TrendingUp, Earth } from 'lucide-react';
 import { toast } from 'sonner';
 import PropertyInfo from '@/components/PropertyInfo';
 import ScoreCard from '@/components/ScoreCard';
@@ -146,7 +146,7 @@ const Index = () => {
               <ScoreCard title="Pluviometria" score="7.5/10" icon={<Droplets className="h-5 w-5" />} />
               <ScoreCard title="Biomassa" score="8/10" icon={<Leaf className="h-5 w-5" />} />
               <ScoreCard title="Histórico de Solo" score="9/10" icon={<Layers className="h-5 w-5" />} />
-              <ScoreCard title="Tipo de Solo" score="9/10" icon={<Layers className="h-5 w-5" />} />
+              <ScoreCard title="Tipo de Solo" score="9/10" icon={<Earth className="h-5 w-5" />} />
               <ScoreCard title="Produtividade Histórica" score="6.5/10" icon={<TrendingUp className="h-5 w-5" />} />
               <ScoreCard 
                 title="Score Área" 
