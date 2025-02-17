@@ -10,7 +10,7 @@ import VectorSource from 'ol/source/Vector';
 import XYZ from 'ol/source/XYZ';
 import { fromLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
-import { Fill, Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import { toast } from 'sonner';
 import 'ol/ol.css';
 import geoJsonExample from '../../api-docs/examples/geojson.json';
@@ -20,8 +20,16 @@ interface MapViewProps {
 }
 
 const fetchMapData = async () => {
-  // Temporariamente usando dados de exemplo
   return geoJsonExample;
+};
+
+const getColorByTalhao = (talhao: number) => {
+  const colors = {
+    1: 'rgba(0, 155, 77, 0.3)',  // Verde MERX
+    2: 'rgba(255, 193, 7, 0.3)',  // Amarelo
+    3: 'rgba(220, 53, 69, 0.3)'   // Vermelho
+  };
+  return colors[talhao as keyof typeof colors] || 'rgba(0, 155, 77, 0.3)';
 };
 
 const MapView = ({ carFilter }: MapViewProps) => {
@@ -36,40 +44,55 @@ const MapView = ({ carFilter }: MapViewProps) => {
   useEffect(() => {
     if (!mapRef.current || isLoading || error) return;
 
-    // Filtrar features se houver um CAR específico
     const filteredFeatures = carFilter 
       ? {
           ...geoJsonData,
           features: geoJsonData.features.filter((feature: any) => 
-            feature.properties.property_id === carFilter
+            feature.properties.cod_imovel === carFilter
           )
         }
       : geoJsonData;
 
-    // Criar source e layer vetorial
     const vectorSource = new VectorSource({
       features: new GeoJSON().readFeatures(filteredFeatures, {
-        featureProjection: 'EPSG:3857'
+        featureProjection: 'EPSG:3857',
+        dataProjection: 'EPSG:4674' // SIRGAS 2000
       })
     });
 
-    // Estilo para os polígonos
-    const polygonStyle = new Style({
-      fill: new Fill({
-        color: 'rgba(0, 155, 77, 0.3)', // Verde MERX com transparência
-      }),
-      stroke: new Stroke({
-        color: '#009B4D', // Verde MERX
-        width: 2,
-      }),
-    });
+    // Estilo personalizado para cada talhão
+    const styleFunction = (feature: any) => {
+      const talhao = feature.get('talhao');
+      const rotulo = feature.get('rotulo');
+      
+      return new Style({
+        fill: new Fill({
+          color: getColorByTalhao(talhao)
+        }),
+        stroke: new Stroke({
+          color: '#009B4D',
+          width: 2,
+        }),
+        text: new Text({
+          text: rotulo?.toString() || '',
+          fill: new Fill({
+            color: '#000000'
+          }),
+          stroke: new Stroke({
+            color: '#FFFFFF',
+            width: 2
+          }),
+          font: '14px Inter',
+          offsetY: -15
+        })
+      });
+    };
 
     const vectorLayer = new VectorLayer({
       source: vectorSource,
-      style: polygonStyle,
+      style: styleFunction,
     });
 
-    // Criar o mapa com camada base ESRI
     const map = new Map({
       target: mapRef.current,
       layers: [
@@ -83,38 +106,43 @@ const MapView = ({ carFilter }: MapViewProps) => {
         vectorLayer
       ],
       view: new View({
-        center: fromLonLat([-45.6789, -12.3456]),
-        zoom: 12
+        center: fromLonLat([-49.757, -10.787]),
+        zoom: 14
       })
     });
 
-    // Adicionar interatividade ao clicar nas geometrias
     map.on('click', (event) => {
       const feature = map.forEachFeatureAtPixel(event.pixel, function(feature) {
         return feature;
       });
       
       if (feature) {
-        const propertyId = feature.get('property_id');
-        if (propertyId && !carFilter) {
-          navigate(`/report/${propertyId}`);
+        const properties = feature.getProperties();
+        toast.info(`
+          Talhão: ${properties.talhao}
+          Área: ${properties['area(ha)']} ha
+          Cultura: ${properties.Cultura}
+          Plantio: ${properties.plantio}
+          Colheita: ${properties.colheita}
+        `);
+        
+        if (!carFilter && properties.cod_imovel) {
+          navigate(`/report/${properties.cod_imovel}`);
         }
       }
     });
 
-    // Mudar o cursor ao passar sobre as geometrias
     map.on('pointermove', function(e) {
       const pixel = map.getEventPixel(e.originalEvent);
       const hit = map.hasFeatureAtPixel(pixel);
       map.getTargetElement().style.cursor = hit ? 'pointer' : '';
     });
 
-    // Ajustar o zoom para mostrar todas as geometrias
     if (vectorSource.getFeatures().length > 0) {
       const extent = vectorSource.getExtent();
       map.getView().fit(extent, {
         padding: [50, 50, 50, 50],
-        maxZoom: 14
+        maxZoom: 16
       });
     }
 
