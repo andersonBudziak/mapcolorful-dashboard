@@ -1,11 +1,45 @@
 
-{
-  "car": "123456789",
-  "municipality": "São Paulo",
-  "state": "SP",
-  "coordinates": "-23.5505,-46.6333",
-  "status": "Ativo",
-  "propertyType": "Rural",
-  "conception": "Própria",
-  "farmName": "Fazenda São João"
-}
+[
+  {
+    "id": "123456789",
+    "name": "Fazenda São João",
+    "owner": "João da Silva",
+    "municipality": "Sorriso",
+    "state": "MT",
+    "area": 2500,
+    "coordinates": {
+      "latitude": -12.5452,
+      "longitude": -55.7148
+    },
+    "propertyType": "Rural",
+    "status": "Ativo"
+  },
+  {
+    "id": "987654321",
+    "name": "Fazenda Bela Vista",
+    "owner": "Maria Santos",
+    "municipality": "Lucas do Rio Verde",
+    "state": "MT",
+    "area": 1800,
+    "coordinates": {
+      "latitude": -13.0516,
+      "longitude": -55.9126
+    },
+    "propertyType": "Rural",
+    "status": "Ativo"
+  },
+  {
+    "id": "456789123",
+    "name": "Fazenda Esperança",
+    "owner": "Pedro Oliveira",
+    "municipality": "Nova Mutum",
+    "state": "MT",
+    "area": 3200,
+    "coordinates": {
+      "latitude": -13.8305,
+      "longitude": -56.0751
+    },
+    "propertyType": "Rural",
+    "status": "Ativo"
+  }
+]

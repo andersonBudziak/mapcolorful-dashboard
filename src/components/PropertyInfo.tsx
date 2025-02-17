@@ -6,14 +6,18 @@ import { toast } from 'sonner';
 import propertyExample from '../../api-docs/examples/property.json';
 
 interface PropertyData {
-  car: string;
+  id: string;
+  name: string;
+  owner: string;
   municipality: string;
   state: string;
-  coordinates: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
   status: string;
   propertyType: string;
-  conception: string;
-  farmName: string;
+  area: number;
 }
 
 const fetchPropertyData = async (car: string): Promise<PropertyData> => {
@@ -25,7 +29,12 @@ const fetchPropertyData = async (car: string): Promise<PropertyData> => {
     return response.json();
   } catch (error) {
     console.log('Falling back to example property data');
-    return propertyExample;
+    // Procurar a propriedade específica no array de exemplo
+    const property = propertyExample.find((p: PropertyData) => p.id === car);
+    if (!property) {
+      throw new Error('Property not found');
+    }
+    return property;
   }
 };
 
@@ -52,18 +61,27 @@ const PropertyInfo = () => {
     );
   }
 
+  // Formatar as coordenadas como string
+  const formatCoordinates = (coords: { latitude: number; longitude: number }) => {
+    return `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`;
+  };
+
   return (
     <Card className="p-6 bg-[#F3F4F6]">
       <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Informações da Propriedade</h2>
       <div className="space-y-3">
-        <InfoField label="CAR" value={propertyData?.car || '-'} />
+        <InfoField label="CAR" value={propertyData?.id || '-'} />
+        <InfoField label="Nome" value={propertyData?.name || '-'} />
+        <InfoField label="Proprietário" value={propertyData?.owner || '-'} />
         <InfoField label="Município" value={propertyData?.municipality || '-'} />
         <InfoField label="UF" value={propertyData?.state || '-'} />
-        <InfoField label="Lat|Lon" value={propertyData?.coordinates || '-'} />
+        <InfoField 
+          label="Lat|Lon" 
+          value={propertyData?.coordinates ? formatCoordinates(propertyData.coordinates) : '-'} 
+        />
+        <InfoField label="Área (ha)" value={propertyData?.area ? `${propertyData.area}` : '-'} />
         <InfoField label="Situação" value={propertyData?.status || '-'} />
         <InfoField label="Tipo imóvel" value={propertyData?.propertyType || '-'} />
-        <InfoField label="Concepção" value={propertyData?.conception || '-'} />
-        <InfoField label="Nome Fazenda" value={propertyData?.farmName || '-'} />
       </div>
     </Card>
   );
