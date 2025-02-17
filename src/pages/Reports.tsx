@@ -28,7 +28,6 @@ const Reports = () => {
   const [selectedCars, setSelectedCars] = useState<string[]>([]);
   const [exporting, setExporting] = useState(false);
   
-  // Dados mockados - serão substituídos pela chamada ao backend Flask
   const reports: Report[] = [
     {
       car: "123456789",
@@ -58,6 +57,121 @@ const Reports = () => {
     });
   };
 
+  const generatePDFContent = (cars: string[]) => {
+    return {
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 60],
+      content: [
+        {
+          text: 'Relatório de Análise de Propriedades',
+          style: 'header',
+          alignment: 'center',
+          margin: [0, 0, 0, 20]
+        },
+        {
+          image: '/lovable-uploads/6cbc2bc4-80af-4178-a42d-1b3be3dca26c.png',
+          width: 150,
+          alignment: 'center',
+          margin: [0, 0, 0, 30]
+        },
+        ...cars.map((car, index) => [
+          {
+            text: `Propriedade ${index + 1}`,
+            style: 'subheader',
+            pageBreak: index > 0 ? 'before' : undefined
+          },
+          {
+            table: {
+              headerRows: 1,
+              widths: ['*', '*'],
+              body: [
+                [{ text: 'CAR', style: 'tableHeader' }, { text: car, style: 'tableCell' }],
+                [{ text: 'Data da Análise', style: 'tableHeader' }, { text: new Date().toLocaleDateString('pt-BR'), style: 'tableCell' }],
+                [{ text: 'Status', style: 'tableHeader' }, { text: 'Análise Concluída', style: 'tableCell' }]
+              ]
+            },
+            margin: [0, 20]
+          },
+          {
+            canvas: [
+              {
+                type: 'rect',
+                x: 0,
+                y: 0,
+                w: 515,
+                h: 200,
+                r: 4,
+                lineWidth: 1,
+                lineColor: '#064C9F'
+              }
+            ],
+            margin: [0, 20]
+          },
+          {
+            text: 'Métricas de Avaliação',
+            style: 'subheader',
+            margin: [0, 20]
+          },
+          {
+            columns: [
+              {
+                width: 'auto',
+                stack: [
+                  { text: 'Score Área:', style: 'metric' },
+                  { text: 'Pluviometria:', style: 'metric' },
+                  { text: 'Biomassa:', style: 'metric' }
+                ],
+                margin: [0, 0, 20, 0]
+              },
+              {
+                width: '*',
+                stack: [
+                  { text: '8.0/10', style: 'metricValue' },
+                  { text: '7.5/10', style: 'metricValue' },
+                  { text: '8.0/10', style: 'metricValue' }
+                ]
+              }
+            ],
+            margin: [0, 20]
+          }
+        ]).flat()
+      ],
+      styles: {
+        header: {
+          fontSize: 24,
+          bold: true,
+          color: '#064C9F'
+        },
+        subheader: {
+          fontSize: 18,
+          bold: true,
+          color: '#064C9F',
+          margin: [0, 20, 0, 10]
+        },
+        tableHeader: {
+          fontSize: 12,
+          bold: true,
+          color: '#064C9F',
+          fillColor: '#F3F4F6'
+        },
+        tableCell: {
+          fontSize: 12
+        },
+        metric: {
+          fontSize: 14,
+          bold: true,
+          color: '#064C9F'
+        },
+        metricValue: {
+          fontSize: 14
+        }
+      },
+      defaultStyle: {
+        font: 'Helvetica'
+      }
+    };
+  };
+
   const handleExportSelected = async () => {
     if (selectedCars.length === 0) {
       toast.error("Selecione pelo menos um relatório para exportar");
@@ -77,7 +191,10 @@ const Reports = () => {
             'Content-Type': 'application/json',
             'Accept': 'application/pdf',
           },
-          body: JSON.stringify({ cars: selectedCars }),
+          body: JSON.stringify({
+            cars: selectedCars,
+            pdfContent: generatePDFContent(selectedCars)
+          }),
         });
 
         if (!response.ok) {
@@ -95,9 +212,8 @@ const Reports = () => {
         document.body.removeChild(a);
       } catch (apiError) {
         console.log('Falling back to example batch PDF');
-        // Fallback to generating a simple PDF
-        const text = selectedCars.map(car => `Relatório da Propriedade - CAR: ${car}`).join('\n\n');
-        const blob = new Blob([text], { type: 'application/pdf' });
+        const pdfContent = generatePDFContent(selectedCars);
+        const blob = new Blob([JSON.stringify(pdfContent)], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
