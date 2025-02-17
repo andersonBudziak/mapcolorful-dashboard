@@ -59,8 +59,6 @@ const Reports = () => {
 
   const generatePDFContent = (cars: string[]) => {
     return {
-      pageSize: 'A4',
-      pageMargins: [40, 60, 40, 60],
       content: [
         {
           text: 'Relatório de Análise de Propriedades',
@@ -168,6 +166,13 @@ const Reports = () => {
       },
       defaultStyle: {
         font: 'Helvetica'
+      },
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 60],
+      info: {
+        title: 'Relatório de Análise de Propriedades',
+        author: 'Sistema de Análise',
+        subject: 'Relatório detalhado das propriedades selecionadas'
       }
     };
   };
@@ -185,15 +190,15 @@ const Reports = () => {
       console.log('Exporting PDFs for CARs:', selectedCars);
       
       try {
+        const pdfContent = generatePDFContent(selectedCars);
         const response = await fetch('http://localhost:8000/api/reports/batch-pdf', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/pdf',
           },
           body: JSON.stringify({
             cars: selectedCars,
-            pdfContent: generatePDFContent(selectedCars)
+            pdfContent
           }),
         });
 
@@ -202,6 +207,10 @@ const Reports = () => {
         }
 
         const blob = await response.blob();
+        if (blob.type !== 'application/pdf') {
+          throw new Error('Response is not a PDF');
+        }
+
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -211,17 +220,8 @@ const Reports = () => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } catch (apiError) {
-        console.log('Falling back to example batch PDF');
-        const pdfContent = generatePDFContent(selectedCars);
-        const blob = new Blob([JSON.stringify(pdfContent)], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'relatorios.pdf';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        console.error('Error with API:', apiError);
+        toast.error("Erro ao gerar PDF. Por favor, tente novamente.");
       }
 
       toast.success("Relatórios exportados com sucesso!");
