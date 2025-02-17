@@ -33,8 +33,16 @@ interface BiomassData {
 }
 
 const fetchBiomassData = async (car: string): Promise<BiomassData[]> => {
-  // Temporariamente usando dados de exemplo
-  return biomassExample;
+  try {
+    const response = await fetch(`http://localhost:8000/api/biomass/${car}`);
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+    return response.json();
+  } catch (error) {
+    console.log('Falling back to example biomass data');
+    return biomassExample;
+  }
 };
 
 const BiomassCharts = () => {
