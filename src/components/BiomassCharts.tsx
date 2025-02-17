@@ -1,5 +1,6 @@
 
 import { Card } from '@/components/ui/card';
+import { Leaf } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,7 +52,10 @@ const BiomassCharts = () => {
   if (isLoading) {
     return (
       <Card className="p-6">
-        <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Biomassa</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Leaf className="h-5 w-5 text-[#064C9F]" />
+          <h2 className="text-xl font-semibold text-[#064C9F]">Biomassa</h2>
+        </div>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
         </div>
@@ -82,7 +86,10 @@ const BiomassCharts = () => {
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Biomassa</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <Leaf className="h-5 w-5 text-[#064C9F]" />
+        <h2 className="text-xl font-semibold text-[#064C9F]">Biomassa</h2>
+      </div>
       <Line options={options} data={data} />
     </Card>
   );

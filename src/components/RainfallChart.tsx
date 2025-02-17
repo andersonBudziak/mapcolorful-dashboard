@@ -1,5 +1,6 @@
 
 import { Card } from '@/components/ui/card';
+import { Droplets } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -49,7 +50,10 @@ const RainfallChart = () => {
   if (isLoading) {
     return (
       <Card className="p-6">
-        <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Pluviosidade</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Droplets className="h-5 w-5 text-[#064C9F]" />
+          <h2 className="text-xl font-semibold text-[#064C9F]">Pluviosidade</h2>
+        </div>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
         </div>
@@ -73,17 +77,16 @@ const RainfallChart = () => {
     plugins: {
       legend: {
         position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Pluviosidade Mensal'
       }
     }
   };
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold text-[#064C9F] mb-4">Pluviosidade</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <Droplets className="h-5 w-5 text-[#064C9F]" />
+        <h2 className="text-xl font-semibold text-[#064C9F]">Pluviosidade</h2>
+      </div>
       <Bar data={data} options={options} />
     </Card>
   );
