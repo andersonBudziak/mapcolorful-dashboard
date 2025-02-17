@@ -1,15 +1,17 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Reports from './pages/Reports';
-import PropertyDetail from './pages/PropertyDetail';
-import NotFound from './pages/NotFound';
+import { Toaster } from "sonner";
+import Reports from '@/pages/Reports';
+import Index from '@/pages/Index';
+import NotFound from '@/pages/NotFound';
 
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Reports />} />
-        <Route path="/property/:car" element={<PropertyDetail />} />
+        <Route path="/report/:car" element={<Index />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
