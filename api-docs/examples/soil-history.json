@@ -1,11 +1,68 @@
-
 [
   {
     "year": 2024,
-    "crop": "Soja"
+    "crop": {
+      "Soja": {"percentage": 35.0, "color": "#E974ED"},
+      "Milho": {"percentage": 25.0, "color": "#FFD300"},
+      "Cana-de-açúcar": {"percentage": 15.0, "color": "#DDA50A"},
+      "Mata Nativa": {"percentage": 10.0, "color": "#006400"},
+      "Pastagem": {"percentage": 10.0, "color": "#F0F0A1"},
+      "Área Urbana": {"percentage": 5.0, "color": "#E6004D"}
+    }
   },
   {
     "year": 2023,
-    "crop": "Pasto"
+    "crop": {
+      "Pasto": {"percentage": 40.0, "color": "#F0F0A1"},
+      "Floresta": {"percentage": 20.0, "color": "#008000"},
+      "Agricultura Anual": {"percentage": 15.0, "color": "#E974ED"},
+      "Áreas Alagadas": {"percentage": 10.0, "color": "#29A3CC"},
+      "Mosaico de Ocupações": {"percentage": 10.0, "color": "#C2C2C2"},
+      "Área Não Vegetada": {"percentage": 5.0, "color": "#E5E5E5"}
+    }
+  },
+  {
+    "year": 2022,
+    "crop": {
+      "Soja": {"percentage": 38.0, "color": "#E974ED"},
+      "Milho": {"percentage": 22.0, "color": "#FFD300"},
+      "Cana-de-açúcar": {"percentage": 18.0, "color": "#DDA50A"},
+      "Mata Nativa": {"percentage": 8.0, "color": "#006400"},
+      "Pastagem": {"percentage": 10.0, "color": "#F0F0A1"},
+      "Área Urbana": {"percentage": 4.0, "color": "#E6004D"}
+    }
+  },
+  {
+    "year": 2021,
+    "crop": {
+      "Pasto": {"percentage": 42.0, "color": "#F0F0A1"},
+      "Floresta": {"percentage": 18.0, "color": "#008000"},
+      "Agricultura Anual": {"percentage": 16.0, "color": "#E974ED"},
+      "Áreas Alagadas": {"percentage": 8.0, "color": "#29A3CC"},
+      "Mosaico de Ocupações": {"percentage": 10.0, "color": "#C2C2C2"},
+      "Área Não Vegetada": {"percentage": 6.0, "color": "#E5E5E5"}
+    }
+  },
+  {
+    "year": 2020,
+    "crop": {
+      "Soja": {"percentage": 33.0, "color": "#E974ED"},
+      "Milho": {"percentage": 27.0, "color": "#FFD300"},
+      "Cana-de-açúcar": {"percentage": 14.0, "color": "#DDA50A"},
+      "Mata Nativa": {"percentage": 9.0, "color": "#006400"},
+      "Pastagem": {"percentage": 12.0, "color": "#F0F0A1"},
+      "Área Urbana": {"percentage": 5.0, "color": "#E6004D"}
+    }
+  },
+  {
+    "year": 2019,
+    "crop": {
+      "Pasto": {"percentage": 45.0, "color": "#F0F0A1"},
+      "Floresta": {"percentage": 15.0, "color": "#008000"},
+      "Agricultura Anual": {"percentage": 14.0, "color": "#E974ED"},
+      "Áreas Alagadas": {"percentage": 10.0, "color": "#29A3CC"},
+      "Mosaico de Ocupações": {"percentage": 10.0, "color": "#C2C2C2"},
+      "Área Não Vegetada": {"percentage": 6.0, "color": "#E5E5E5"}
+    }
   }
 ]
