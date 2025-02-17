@@ -8,7 +8,7 @@ import soilHistoryExample from '../../api-docs/examples/soil-history.json';
 
 interface SoilData {
   year: number;
-  crop: string;
+  crop: Record<string, number>;
 }
 
 const fetchSoilHistory = async (car: string): Promise<SoilData[]> => {
@@ -51,9 +51,25 @@ const SoilHistory = () => {
   }
 
   const cropColors: Record<string, string> = {
-    'Soja': 'bg-pink-200',
-    'Pasto': 'bg-green-200'
+    'Soja': 'bg-yellow-200',
+    'Milho': 'bg-yellow-400',
+    'Cana-de-açúcar': 'bg-green-300',
+    'Mata Nativa': 'bg-green-800',
+    'Pastagem': 'bg-green-400',
+    'Área Urbana': 'bg-gray-400',
+    'Pasto': 'bg-green-500',
+    'Floresta': 'bg-green-900',
+    'Agricultura Anual': 'bg-yellow-300',
+    'Áreas Alagadas': 'bg-blue-300',
+    'Mosaico de Ocupações': 'bg-orange-300',
+    'Área Não Vegetada': 'bg-gray-300'
   };
+
+  // Coletar todas as classes únicas de uso do solo
+  const uniqueCrops = new Set<string>();
+  soilData?.forEach(item => {
+    Object.keys(item.crop).forEach(crop => uniqueCrops.add(crop));
+  });
   
   return (
     <Card className="p-6">
@@ -65,19 +81,26 @@ const SoilHistory = () => {
         {soilData?.map(item => (
           <div key={item.year} className="flex items-center space-x-4">
             <span className="w-16 text-[#1F2937] font-medium">{item.year}</span>
-            <div className={`flex-1 h-6 ${cropColors[item.crop]} rounded`}></div>
+            <div className="flex-1 h-6 flex">
+              {Object.entries(item.crop).map(([cropName, percentage], index) => (
+                <div
+                  key={`${item.year}-${cropName}`}
+                  className={`h-full ${cropColors[cropName] || 'bg-gray-200'}`}
+                  style={{ width: `${percentage}%` }}
+                  title={`${cropName}: ${percentage}%`}
+                />
+              ))}
+            </div>
           </div>
         ))}
       </div>
-      <div className="mt-4 flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-pink-200 rounded"></div>
-          <span className="text-sm text-[#1F2937]">Soja</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-green-200 rounded"></div>
-          <span className="text-sm text-[#1F2937]">Pasto</span>
-        </div>
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+        {Array.from(uniqueCrops).map(crop => (
+          <div key={crop} className="flex items-center space-x-2">
+            <div className={`w-4 h-4 ${cropColors[crop] || 'bg-gray-200'} rounded`}></div>
+            <span className="text-sm text-[#1F2937] truncate" title={crop}>{crop}</span>
+          </div>
+        ))}
       </div>
     </Card>
   );

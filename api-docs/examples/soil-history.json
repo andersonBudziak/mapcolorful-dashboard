@@ -2,10 +2,68 @@
 [
   {
     "year": 2024,
-    "crop": "Soja"
+    "crop": {
+      "Soja": 35.0,
+      "Milho": 25.0,
+      "Cana-de-açúcar": 15.0,
+      "Mata Nativa": 10.0,
+      "Pastagem": 10.0,
+      "Área Urbana": 5.0
+    }
   },
   {
     "year": 2023,
-    "crop": "Pasto"
+    "crop": {
+      "Pasto": 40.0,
+      "Floresta": 20.0,
+      "Agricultura Anual": 15.0,
+      "Áreas Alagadas": 10.0,
+      "Mosaico de Ocupações": 10.0,
+      "Área Não Vegetada": 5.0
+    }
+  },
+  {
+    "year": 2022,
+    "crop": {
+      "Soja": 38.0,
+      "Milho": 22.0,
+      "Cana-de-açúcar": 18.0,
+      "Mata Nativa": 8.0,
+      "Pastagem": 10.0,
+      "Área Urbana": 4.0
+    }
+  },
+  {
+    "year": 2021,
+    "crop": {
+      "Pasto": 42.0,
+      "Floresta": 18.0,
+      "Agricultura Anual": 16.0,
+      "Áreas Alagadas": 8.0,
+      "Mosaico de Ocupações": 10.0,
+      "Área Não Vegetada": 6.0
+    }
+  },
+  {
+    "year": 2020,
+    "crop": {
+      "Soja": 33.0,
+      "Milho": 27.0,
+      "Cana-de-açúcar": 14.0,
+      "Mata Nativa": 9.0,
+      "Pastagem": 12.0,
+      "Área Urbana": 5.0
+    }
+  },
+  {
+    "year": 2019,
+    "crop": {
+      "Pasto": 45.0,
+      "Floresta": 15.0,
+      "Agricultura Anual": 14.0,
+      "Áreas Alagadas": 10.0,
+      "Mosaico de Ocupações": 10.0,
+      "Área Não Vegetada": 6.0
+    }
   }
 ]
