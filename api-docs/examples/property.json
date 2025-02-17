@@ -1,47 +1,45 @@
 
-{
-  "id": "123456789",
-  "name": "Fazenda São João",
-  "owner": "João da Silva",
-  "municipality": "Sorriso",
-  "state": "MT",
-  "area": 2500,
-  "coordinates": {
-    "latitude": -12.5452,
-    "longitude": -55.7148
-  },
-  "propertyType": "Rural",
-  "perimeter": 20.5,
-  "biome": "Cerrado",
-  "conservationAreas": {
-    "permanentPreservation": 500,
-    "legalReserve": 750,
-    "nativeVegetation": 300
-  },
-  "climate": {
-    "annualRainfall": 1800,
-    "averageTemperature": 25.5,
-    "relativeHumidity": 75
-  },
-  "soilTypes": [
-    {
-      "type": "Latossolo Vermelho",
-      "percentage": 60
+[
+  {
+    "id": "123456789",
+    "name": "Fazenda São João",
+    "owner": "João da Silva",
+    "municipality": "Sorriso",
+    "state": "MT",
+    "area": 2500,
+    "coordinates": {
+      "latitude": -12.5452,
+      "longitude": -55.7148
     },
-    {
-      "type": "Argissolo",
-      "percentage": 40
-    }
-  ],
-  "lastUpdate": "2024-03-15T10:30:00Z",
-  "status": "Ativo",
-  "environmentalCompliance": true,
-  "scores": {
-    "rainfall": 7.5,
-    "biomass": 8.0,
-    "soilHistory": 9.0,
-    "soilType": 9.0,
-    "historicalProductivity": 6.5,
-    "overall": 8.0
+    "propertyType": "Rural",
+    "status": "Ativo"
+  },
+  {
+    "id": "987654321",
+    "name": "Fazenda Bela Vista",
+    "owner": "Maria Santos",
+    "municipality": "Lucas do Rio Verde",
+    "state": "MT",
+    "area": 1800,
+    "coordinates": {
+      "latitude": -13.0516,
+      "longitude": -55.9126
+    },
+    "propertyType": "Rural",
+    "status": "Ativo"
+  },
+  {
+    "id": "456789123",
+    "name": "Fazenda Esperança",
+    "owner": "Pedro Oliveira",
+    "municipality": "Nova Mutum",
+    "state": "MT",
+    "area": 3200,
+    "coordinates": {
+      "latitude": -13.8305,
+      "longitude": -56.0751
+    },
+    "propertyType": "Rural",
+    "status": "Ativo"
   }
-}
+]

@@ -29,7 +29,12 @@ const fetchPropertyData = async (car: string): Promise<PropertyData> => {
     return response.json();
   } catch (error) {
     console.log('Falling back to example property data');
-    return propertyExample;
+    // Procurar a propriedade específica no array de exemplo
+    const property = propertyExample.find((p: PropertyData) => p.id === car);
+    if (!property) {
+      throw new Error('Property not found');
+    }
+    return property;
   }
 };
 
