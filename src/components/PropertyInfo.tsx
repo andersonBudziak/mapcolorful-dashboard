@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import propertyExample from '../../api-docs/examples/property.json';
 
 interface PropertyData {
   car: string;
@@ -23,17 +24,8 @@ const fetchPropertyData = async (car: string): Promise<PropertyData> => {
     }
     return response.json();
   } catch (error) {
-    console.log('Using example property data');
-    return {
-      car: car || "123456789",
-      municipality: "Lagoa da Confusão",
-      state: "TO",
-      coordinates: "-49.757, -10.787",
-      status: "Ativo",
-      propertyType: "Rural",
-      conception: "Própria",
-      farmName: "Fazenda Exemplo"
-    };
+    console.log('Falling back to example property data');
+    return propertyExample;
   }
 };
 
@@ -43,7 +35,6 @@ const PropertyInfo = () => {
     queryKey: ['property', car],
     queryFn: () => fetchPropertyData(car || ''),
     enabled: !!car,
-    retry: false
   });
 
   if (error) {
