@@ -67,13 +67,13 @@ const MapView = ({ carFilter }: MapViewProps) => {
       })
     });
 
-    // Estilo para os polígonos - agora com preenchimento branco e borda
+    // Estilo para os polígonos - agora com preenchimento branco e borda branca
     const polygonStyle = new Style({
       fill: new Fill({
         color: 'rgba(255, 255, 255, 0.6)', // Branco com transparência
       }),
       stroke: new Stroke({
-        color: '#000000', // Borda preta
+        color: '#FFFFFF', // Borda branca
         width: 2,
       }),
     });
