@@ -51,50 +51,73 @@ const Index = () => {
   const handleDownloadPDF = async () => {
     if (downloading) return;
     
+    setDownloading(true);
+    toast.loading("Gerando relatório...");
+    
     try {
-      setDownloading(true);
-      console.log('Downloading PDF for CAR:', car);
-      
-      try {
-        const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/pdf',
-          },
-        });
+      const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `relatorio-${car}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } catch (apiError) {
-        console.log('Falling back to example PDF');
-        // Fallback to generating a simple PDF
-        const text = `Relatório da Propriedade - CAR: ${car}`;
-        const blob = new Blob([text], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `relatorio-${car}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      if (!response.ok) {
+        throw new Error(`Erro ao gerar PDF: ${response.status}`);
       }
 
+      const blob = await response.blob();
+      
+      // Verificar se o blob é realmente um PDF
+      if (blob.type !== 'application/pdf') {
+        throw new Error('O arquivo gerado não é um PDF válido');
+      }
+
+      // Criar URL e link para download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio-${car}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Limpar recursos
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.dismiss();
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
       console.error('Erro ao exportar:', error);
-      toast.error("Erro ao exportar relatório. Por favor, tente novamente.");
+      toast.dismiss();
+      toast.error("Erro ao gerar o relatório. Por favor, tente novamente.");
+      
+      // Fallback para gerar um PDF simples em caso de erro
+      try {
+        const content = `
+          Relatório da Propriedade
+          CAR: ${car}
+          Data: ${new Date().toLocaleDateString()}
+          
+          Este é um relatório gerado automaticamente.
+          Por favor, tente novamente mais tarde para obter o relatório completo.
+        `;
+        
+        const blob = new Blob([content], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio-${car}-fallback.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        toast.info("Relatório simplificado gerado devido a um erro.");
+      } catch (fallbackError) {
+        console.error('Erro ao gerar PDF fallback:', fallbackError);
+        toast.error("Não foi possível gerar nenhum relatório. Entre em contato com o suporte.");
+      }
     } finally {
       setDownloading(false);
     }
