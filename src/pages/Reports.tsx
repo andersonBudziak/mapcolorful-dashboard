@@ -66,10 +66,8 @@ const Reports = () => {
   return <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <img src="/lovable-uploads/03373f1d-8e1c-4f7b-9268-82d5cb6123a0.png" alt="MERX" className="h-8" />
-            <h1 className="text-2xl font-semibold text-[#064C9F]">Relatórios - Histórico agronômico </h1>
-          </div>
+          <img src="/lovable-uploads/03373f1d-8e1c-4f7b-9268-82d5cb6123a0.png" alt="MERX" className="h-8" />
+          <h1 className="text-2xl font-semibold text-[#064C9F] flex-1 text-center">Relatórios - Histórico agronômico</h1>
           <img src="/lovable-uploads/03373f1d-8e1c-4f7b-9268-82d5cb6123a0.png" alt="MERX" className="h-8" />
         </div>
       </header>
