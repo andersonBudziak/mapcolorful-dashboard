@@ -14,9 +14,9 @@ const ScoreCard = ({ title, score, highlighted = false, icon }: ScoreCardProps) 
     <Card className={`p-4 ${highlighted ? 'bg-[#064C9F] text-white' : 'bg-white'}`}>
       <div className="flex items-center gap-2 mb-2">
         {icon && <div className={`${highlighted ? 'text-white' : 'text-[#064C9F]'}`}>{icon}</div>}
-        <h3 className="font-medium text-sm">{title}</h3>
+        <h3 className={`font-medium ${highlighted ? 'text-base text-white' : 'text-sm'}`}>{title}</h3>
       </div>
-      <p className="text-xl font-semibold">{score}</p>
+      <p className={`font-semibold ${highlighted ? 'text-2xl text-white' : 'text-xl'}`}>{score}</p>
     </Card>
   );
 };
