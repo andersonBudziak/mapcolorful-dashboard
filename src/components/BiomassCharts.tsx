@@ -69,8 +69,9 @@ const BiomassCharts = () => {
       {
         label: 'NDVI',
         data: biomassData?.map(item => item.ndvi) || [],
-        borderColor: '#064C9F',
-        backgroundColor: 'rgba(6, 76, 159, 0.5)',
+        borderColor: '#009B4D',
+        backgroundColor: 'rgba(0, 155, 77, 0.2)',
+        tension: 0.4
       }
     ]
   };
