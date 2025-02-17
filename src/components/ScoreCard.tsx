@@ -1,31 +1,22 @@
 
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { ReactNode } from 'react';
 
 interface ScoreCardProps {
   title: string;
   score: string;
   highlighted?: boolean;
+  icon?: ReactNode;
 }
 
-const ScoreCard = ({ title, score, highlighted = false }: ScoreCardProps) => {
+const ScoreCard = ({ title, score, highlighted = false, icon }: ScoreCardProps) => {
   return (
-    <Card className={cn(
-      "p-4 text-center transition-all duration-300 hover:shadow-lg",
-      highlighted ? "bg-[#2980E8] text-white" : "bg-[#F3F4F6]"
-    )}>
-      <h3 className={cn(
-        "text-sm font-medium mb-2",
-        highlighted ? "text-white" : "text-[#1F2937]"
-      )}>
-        {title}
-      </h3>
-      <p className={cn(
-        "text-2xl font-bold",
-        highlighted ? "text-white" : "text-[#064C9F]"
-      )}>
-        {score}
-      </p>
+    <Card className={`p-4 ${highlighted ? 'bg-[#064C9F] text-white' : 'bg-white'}`}>
+      <div className="flex items-center gap-2 mb-2">
+        {icon && <div className={`${highlighted ? 'text-white' : 'text-[#064C9F]'}`}>{icon}</div>}
+        <h3 className="font-medium text-sm">{title}</h3>
+      </div>
+      <p className="text-xl font-semibold">{score}</p>
     </Card>
   );
 };

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FileDown } from 'lucide-react';
+import { FileDown, Droplets, Leaf, Layers, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import PropertyInfo from '@/components/PropertyInfo';
 import ScoreCard from '@/components/ScoreCard';
@@ -143,11 +143,11 @@ const Index = () => {
           <div className="space-y-8">
             <MapView carFilter={car} />
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <ScoreCard title="Pluviometria" score="7.5/10" />
-              <ScoreCard title="Biomassa" score="8/10" />
-              <ScoreCard title="Histórico de Solo" score="9/10" />
-              <ScoreCard title="Tipo de Solo" score="9/10" />
-              <ScoreCard title="Produtividade Histórica" score="6.5/10" />
+              <ScoreCard title="Pluviometria" score="7.5/10" icon={<Droplets className="h-5 w-5" />} />
+              <ScoreCard title="Biomassa" score="8/10" icon={<Leaf className="h-5 w-5" />} />
+              <ScoreCard title="Histórico de Solo" score="9/10" icon={<Layers className="h-5 w-5" />} />
+              <ScoreCard title="Tipo de Solo" score="9/10" icon={<Layers className="h-5 w-5" />} />
+              <ScoreCard title="Produtividade Histórica" score="6.5/10" icon={<TrendingUp className="h-5 w-5" />} />
               <ScoreCard 
                 title="Score Área" 
                 score="8/10" 
