@@ -6,9 +6,15 @@ interface ScoreCardProps {
   title: string;
   score: string;
   highlighted?: boolean;
+  description?: string;
 }
 
-const ScoreCard = ({ title, score, highlighted = false }: ScoreCardProps) => {
+const ScoreCard = ({ 
+  title, 
+  score, 
+  highlighted = false,
+  description
+}: ScoreCardProps) => {
   return (
     <Card className={cn(
       "p-4 text-center transition-all duration-300 hover:shadow-lg",
@@ -21,11 +27,19 @@ const ScoreCard = ({ title, score, highlighted = false }: ScoreCardProps) => {
         {title}
       </h3>
       <p className={cn(
-        "text-2xl font-bold",
+        "text-3xl font-bold mb-1",
         highlighted ? "text-white" : "text-[#064C9F]"
       )}>
         {score}
       </p>
+      {description && (
+        <p className={cn(
+          "text-xs",
+          highlighted ? "text-white/80" : "text-[#1F2937]/80"
+        )}>
+          {description}
+        </p>
+      )}
     </Card>
   );
 };

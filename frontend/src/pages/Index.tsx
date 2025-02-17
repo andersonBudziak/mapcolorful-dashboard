@@ -142,16 +142,37 @@ const Index = () => {
           <PropertyInfo />
           <div className="space-y-8">
             <MapView carFilter={car} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <ScoreCard title="Pluviometria" score="7.5/10" />
-              <ScoreCard title="Biomassa" score="8/10" />
-              <ScoreCard title="Histórico de Solo" score="9/10" />
-              <ScoreCard title="Tipo de Solo" score="9/10" />
-              <ScoreCard title="Produtividade Histórica" score="6.5/10" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <ScoreCard 
                 title="Score Área" 
-                score="8/10" 
+                score="8.0" 
                 highlighted={true}
+                description="Pontuação geral da área"
+              />
+              <ScoreCard 
+                title="Pluviometria" 
+                score="7.5" 
+                description="Índice pluviométrico" 
+              />
+              <ScoreCard 
+                title="Biomassa" 
+                score="8.0" 
+                description="Índice de biomassa"
+              />
+              <ScoreCard 
+                title="Histórico de Solo" 
+                score="9.0" 
+                description="Qualidade do solo"
+              />
+              <ScoreCard 
+                title="Tipo de Solo" 
+                score="9.0" 
+                description="Classificação do solo"
+              />
+              <ScoreCard 
+                title="Produtividade" 
+                score="6.5" 
+                description="Histórico produtivo"
               />
             </div>
           </div>
