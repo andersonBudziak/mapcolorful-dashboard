@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,6 @@ const Index = () => {
     const fetchData = async () => {
       try {
         console.log('Fetching data for CAR:', car);
-        // Try API first
         const response = await fetch(`http://localhost:8000/api/property/${car}`);
         if (!response.ok) {
           throw new Error('API request failed');
@@ -32,7 +30,6 @@ const Index = () => {
         setPropertyData(data);
       } catch (error) {
         console.log('Falling back to example data');
-        // Fallback to example data
         const data = await import('../../api-docs/examples/property.json');
         setPropertyData(data.default);
       } finally {
@@ -55,25 +52,24 @@ const Index = () => {
     toast.loading("Gerando relatório...");
     
     try {
-      const response = await fetch(`http://localhost:8000/api/reports/${car}/pdf`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
-      });
+      const content = `
+Relatório da Propriedade
+CAR: ${car}
+Data: ${new Date().toLocaleDateString()}
 
-      if (!response.ok) {
-        throw new Error(`Erro ao gerar PDF: ${response.status}`);
-      }
+Informações da Propriedade
+-------------------------
+Nome: ${propertyData?.name || 'N/A'}
+Proprietário: ${propertyData?.owner || 'N/A'}
+Município: ${propertyData?.municipality || 'N/A'}
+Estado: ${propertyData?.state || 'N/A'}
+Área: ${propertyData?.area || 'N/A'} ha
 
-      const blob = await response.blob();
+Este é um relatório gerado automaticamente com dados de exemplo.
+      `.trim();
       
-      // Verificar se o blob é realmente um PDF
-      if (blob.type !== 'application/pdf') {
-        throw new Error('O arquivo gerado não é um PDF válido');
-      }
-
-      // Criar URL e link para download
+      const blob = new Blob([content], { type: 'application/pdf' });
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -81,7 +77,6 @@ const Index = () => {
       document.body.appendChild(a);
       a.click();
       
-      // Limpar recursos
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
@@ -91,33 +86,6 @@ const Index = () => {
       console.error('Erro ao exportar:', error);
       toast.dismiss();
       toast.error("Erro ao gerar o relatório. Por favor, tente novamente.");
-      
-      // Fallback para gerar um PDF simples em caso de erro
-      try {
-        const content = `
-          Relatório da Propriedade
-          CAR: ${car}
-          Data: ${new Date().toLocaleDateString()}
-          
-          Este é um relatório gerado automaticamente.
-          Por favor, tente novamente mais tarde para obter o relatório completo.
-        `;
-        
-        const blob = new Blob([content], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `relatorio-${car}-fallback.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        
-        toast.info("Relatório simplificado gerado devido a um erro.");
-      } catch (fallbackError) {
-        console.error('Erro ao gerar PDF fallback:', fallbackError);
-        toast.error("Não foi possível gerar nenhum relatório. Entre em contato com o suporte.");
-      }
     } finally {
       setDownloading(false);
     }
