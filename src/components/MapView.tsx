@@ -12,43 +12,57 @@ import { fromLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Fill, Stroke, Style } from 'ol/style';
 import { toast } from 'sonner';
+import propertyExample from '../../api-docs/examples/property.json';
 import 'ol/ol.css';
-import geoJsonExample from '../../api-docs/examples/geojson.json';
 
 interface MapViewProps {
   carFilter?: string;
 }
 
-const fetchMapData = async () => {
-  // Temporariamente usando dados de exemplo
-  return geoJsonExample;
-};
-
 const MapView = ({ carFilter }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
-  const { data: geoJsonData, isLoading, error } = useQuery({
-    queryKey: ['mapData'],
-    queryFn: fetchMapData,
+  const { data: properties, isLoading, error } = useQuery({
+    queryKey: ['properties'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/properties');
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
+        return response.json();
+      } catch (error) {
+        console.log('Falling back to example data');
+        return propertyExample;
+      }
+    }
   });
 
   useEffect(() => {
-    if (!mapRef.current || isLoading || error) return;
+    if (!mapRef.current || isLoading || error || !properties) return;
 
-    // Filtrar features se houver um CAR específico
-    const filteredFeatures = carFilter 
-      ? {
-          ...geoJsonData,
-          features: geoJsonData.features.filter((feature: any) => 
-            feature.properties.property_id === carFilter
-          )
+    // Filtrar propriedades se houver um CAR específico
+    const filteredProperties = carFilter 
+      ? properties.filter(property => property.id === carFilter)
+      : properties;
+
+    // Criar features GeoJSON a partir das propriedades
+    const features = {
+      type: 'FeatureCollection',
+      features: filteredProperties.map(property => ({
+        type: 'Feature',
+        geometry: property.geometry,
+        properties: {
+          property_id: property.id,
+          name: property.name
         }
-      : geoJsonData;
+      }))
+    };
 
     // Criar source e layer vetorial
     const vectorSource = new VectorSource({
-      features: new GeoJSON().readFeatures(filteredFeatures, {
+      features: new GeoJSON().readFeatures(features, {
         featureProjection: 'EPSG:3857'
       })
     });
@@ -83,7 +97,7 @@ const MapView = ({ carFilter }: MapViewProps) => {
         vectorLayer
       ],
       view: new View({
-        center: fromLonLat([-45.6789, -12.3456]),
+        center: fromLonLat([-55.7148, -12.5452]), // Centralizar no primeiro ponto
         zoom: 12
       })
     });
@@ -123,7 +137,7 @@ const MapView = ({ carFilter }: MapViewProps) => {
     }
 
     return () => map.setTarget(undefined);
-  }, [carFilter, navigate, geoJsonData, isLoading, error]);
+  }, [carFilter, navigate, properties, isLoading, error]);
 
   if (isLoading) {
     return (
