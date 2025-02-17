@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +6,7 @@ import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import XYZ from 'ol/source/XYZ';
+import OSM from 'ol/source/OSM';
 import { fromLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { Fill, Stroke, Style } from 'ol/style';
@@ -69,20 +68,13 @@ const MapView = ({ carFilter }: MapViewProps) => {
       style: polygonStyle,
     });
 
-    // ESRI World Imagery base map
-    const baseLayer = new TileLayer({
-      source: new XYZ({
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        maxZoom: 19,
-        attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer">ArcGIS</a>'
-      })
-    });
-
     // Criar o mapa
     const map = new Map({
       target: mapRef.current,
       layers: [
-        baseLayer,
+        new TileLayer({
+          source: new OSM()
+        }),
         vectorLayer
       ],
       view: new View({
