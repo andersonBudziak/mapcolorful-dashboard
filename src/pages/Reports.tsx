@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +9,6 @@ import { Search, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import MapView from '@/components/MapView';
 import propertyExample from '../../api-docs/examples/property.json';
-
 interface Property {
   id: string;
   name: string;
@@ -29,12 +27,14 @@ interface Property {
     coordinates: number[][][];
   };
 }
-
 const Reports = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const { data: properties, isLoading, error } = useQuery({
+  const {
+    data: properties,
+    isLoading,
+    error
+  } = useQuery({
     queryKey: ['properties'],
     queryFn: async () => {
       try {
@@ -49,29 +49,19 @@ const Reports = () => {
       }
     }
   });
-
   if (error) {
     toast.error("Erro ao carregar propriedades");
   }
-
-  const filteredProperties = properties?.filter((property: Property) =>
-    property.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.owner.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.municipality.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const filteredProperties = properties?.filter((property: Property) => property.id.toLowerCase().includes(searchTerm.toLowerCase()) || property.name.toLowerCase().includes(searchTerm.toLowerCase()) || property.owner.toLowerCase().includes(searchTerm.toLowerCase()) || property.municipality.toLowerCase().includes(searchTerm.toLowerCase()));
   const handlePropertyClick = (car: string) => {
     navigate(`/report/${car}`);
   };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
+  return <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <img src="/lovable-uploads/6cbc2bc4-80af-4178-a42d-1b3be3dca26c.png" alt="Logo" className="h-8" />
-            <h1 className="text-2xl font-semibold text-[#064C9F]">Propriedades Rurais</h1>
+            <h1 className="text-2xl font-semibold text-[#064C9F]">Relatórios - Histórico agronômico </h1>
           </div>
           <img src="/merx-logo.png" alt="MERX" className="h-8" />
         </div>
@@ -86,22 +76,13 @@ const Reports = () => {
           <div className="flex gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Buscar por CAR, nome, proprietário ou município..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+              <Input type="text" placeholder="Buscar por CAR, nome, proprietário ou município..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
           </div>
 
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
+          {isLoading ? <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#064C9F]"></div>
-            </div>
-          ) : (
-            <Table>
+            </div> : <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>CAR</TableHead>
@@ -114,40 +95,28 @@ const Reports = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProperties?.map((property: Property) => (
-                  <TableRow key={property.id} className="cursor-pointer hover:bg-gray-50">
+                {filteredProperties?.map((property: Property) => <TableRow key={property.id} className="cursor-pointer hover:bg-gray-50">
                     <TableCell>{property.id}</TableCell>
                     <TableCell>{property.name}</TableCell>
                     <TableCell>{property.owner}</TableCell>
                     <TableCell>{`${property.municipality}/${property.state}`}</TableCell>
                     <TableCell>{property.area}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-sm ${
-                        property.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-sm ${property.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {property.status}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handlePropertyClick(property.id)}
-                        className="text-[#064C9F]"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handlePropertyClick(property.id)} className="text-[#064C9F]">
                         <MapPin className="h-4 w-4 mr-2" />
                         Ver Relatório
                       </Button>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
-            </Table>
-          )}
+            </Table>}
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Reports;
