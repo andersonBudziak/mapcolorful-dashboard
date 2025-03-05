@@ -44,7 +44,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="sm:max-w-3xl bg-white">
         <DialogHeader>
           <DialogTitle>Solicitar Processamento de Área</DialogTitle>
           <DialogDescription>
@@ -70,7 +70,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
                 <SelectTrigger id="cropType">
                   <SelectValue placeholder="Selecione a cultura" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   <SelectItem value="soja">Soja</SelectItem>
                   <SelectItem value="milho">Milho</SelectItem>
                   <SelectItem value="algodao">Algodão</SelectItem>
@@ -86,7 +86,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
                 <SelectTrigger id="season">
                   <SelectValue placeholder="Selecione o período" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   <SelectItem value="safra">Safra</SelectItem>
                   <SelectItem value="safrinha">Safrinha</SelectItem>
                   <SelectItem value="inverno">Cultura de Inverno</SelectItem>
