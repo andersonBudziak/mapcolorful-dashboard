@@ -18,7 +18,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
   const [season, setSeason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!areaName || !cropType || !season) {
@@ -28,18 +28,49 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
     
     setIsProcessing(true);
     
-    // Simulando processamento
-    setTimeout(() => {
-      toast.success('Solicitação de processamento enviada com sucesso!');
-      toast.info('Você receberá um email quando o relatório estiver pronto.');
-      setIsProcessing(false);
-      onOpenChange(false);
+    try {
+      // Preparar os dados para o envio
+      const requestData = {
+        areaName,
+        cropType,
+        season,
+        // Aqui poderíamos incluir também os dados da geometria desenhada
+        requestDate: new Date().toISOString()
+      };
       
-      // Reset form
-      setAreaName('');
-      setCropType('');
-      setSeason('');
-    }, 2000);
+      // Enviar a solicitação para a API
+      const response = await fetch('http://localhost:8000/api/process-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+      
+      // Analisar a resposta
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Exibir mensagem de sucesso
+        toast.success('Solicitação de processamento enviada com sucesso!');
+        toast.info('Você receberá um email quando o relatório estiver pronto.');
+        
+        // Fechar o modal e resetar o formulário
+        onOpenChange(false);
+        setAreaName('');
+        setCropType('');
+        setSeason('');
+      } else {
+        // Exibir mensagem de erro
+        const errorData = await response.json().catch(() => ({ message: 'Erro ao processar a solicitação' }));
+        toast.error(errorData.message || 'Erro ao enviar a solicitação de processamento');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar solicitação:', error);
+      toast.error('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
