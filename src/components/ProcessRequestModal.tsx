@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MapView from '@/components/MapView';
 import { toast } from 'sonner';
+import { Upload } from 'lucide-react';
 
 interface ProcessRequestModalProps {
   open: boolean;
@@ -17,6 +18,20 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
   const [cropType, setCropType] = useState('');
   const [season, setSeason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [kmlFile, setKmlFile] = useState<File | null>(null);
+
+  const handleKmlUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.name.endsWith('.kml')) {
+        setKmlFile(file);
+        toast.success(`Arquivo KML "${file.name}" carregado com sucesso`);
+      } else {
+        toast.error('Por favor, selecione um arquivo KML válido');
+        e.target.value = '';
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,21 +45,21 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
     
     try {
       // Preparar os dados para o envio
-      const requestData = {
-        areaName,
-        cropType,
-        season,
-        // Aqui poderíamos incluir também os dados da geometria desenhada
-        requestDate: new Date().toISOString()
-      };
+      const formData = new FormData();
+      formData.append('areaName', areaName);
+      formData.append('cropType', cropType);
+      formData.append('season', season);
+      formData.append('requestDate', new Date().toISOString());
+      
+      // Adicionar o arquivo KML se existir
+      if (kmlFile) {
+        formData.append('kmlFile', kmlFile);
+      }
       
       // Enviar a solicitação para a API
       const response = await fetch('http://localhost:8000/api/process-request', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
+        body: formData,
       });
       
       // Analisar a resposta
@@ -60,6 +75,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
         setAreaName('');
         setCropType('');
         setSeason('');
+        setKmlFile(null);
       } else {
         // Exibir mensagem de erro
         const errorData = await response.json().catch(() => ({ message: 'Erro ao processar a solicitação' }));
@@ -124,6 +140,34 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Arquivo KML (opcional)</label>
+            <div className="flex items-center gap-2">
+              <label 
+                htmlFor="kmlUpload" 
+                className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm transition-colors"
+              >
+                <Upload className="h-4 w-4" />
+                {kmlFile ? 'Trocar arquivo' : 'Carregar KML'}
+              </label>
+              <input
+                id="kmlUpload"
+                type="file"
+                accept=".kml"
+                onChange={handleKmlUpload}
+                className="hidden"
+              />
+              {kmlFile && (
+                <span className="text-sm text-gray-600 truncate max-w-[200px]">
+                  {kmlFile.name}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-500">
+              Ou desenhe uma área diretamente no mapa abaixo
+            </p>
           </div>
           
           <div className="rounded-md overflow-hidden border">
