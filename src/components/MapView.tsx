@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { FilePlus, MapPin } from 'lucide-react';
+import { FilePlus } from 'lucide-react';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -18,17 +18,20 @@ import Draw from 'ol/interaction/Draw';
 import { toast } from 'sonner';
 import propertyExample from '../../api-docs/examples/property.json';
 import 'ol/ol.css';
+import ProcessRequestModal from './ProcessRequestModal';
 
 interface MapViewProps {
   carFilter?: string;
+  isInModal?: boolean;
 }
 
-const MapView = ({ carFilter }: MapViewProps) => {
+const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<Map | null>(null);
   const drawInteraction = useRef<Draw | null>(null);
   const kmlLayerSource = useRef<VectorSource | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   
   const { data: properties, isLoading, error } = useQuery({
@@ -88,27 +91,12 @@ const MapView = ({ carFilter }: MapViewProps) => {
       
       if (geometry) {
         toast.success('Área desenhada com sucesso!');
-        
-        // Aqui você poderia enviar a geometria para a API
-        // para solicitar um relatório
-        
-        // Simulando uma resposta da API
-        setTimeout(() => {
-          toast.success('Relatório solicitado com sucesso! Você receberá um email quando estiver pronto.');
-          
-          // Remover a interação de desenho após a solicitação
-          if (mapInstance.current && drawInteraction.current) {
-            mapInstance.current.removeInteraction(drawInteraction.current);
-            drawInteraction.current = null;
-            setIsDrawing(false);
-          }
-        }, 1500);
       }
     });
     
     mapInstance.current.addInteraction(drawInteraction.current);
     setIsDrawing(true);
-    toast.info('Desenhe uma área no mapa para solicitar um relatório');
+    toast.info('Desenhe uma área no mapa para cadastrar');
   };
 
   // Função para lidar com o upload de arquivo KML
@@ -170,11 +158,6 @@ const MapView = ({ carFilter }: MapViewProps) => {
         }
         
         toast.success('Arquivo KML carregado com sucesso!');
-        
-        // Simulando uma resposta da API
-        setTimeout(() => {
-          toast.success('Geometrias do KML processadas! Você pode solicitar relatórios para estas áreas.');
-        }, 1500);
       } catch (error) {
         console.error('Erro ao processar arquivo KML:', error);
         toast.error('Erro ao processar o arquivo KML');
@@ -212,13 +195,13 @@ const MapView = ({ carFilter }: MapViewProps) => {
       })
     });
 
-    // Estilo para os polígonos - agora com preenchimento branco e borda branca
+    // Estilo para os polígonos
     const polygonStyle = new Style({
       fill: new Fill({
-        color: 'rgba(255, 255, 255, 0.6)', // Branco com transparência
+        color: 'rgba(255, 255, 255, 0.6)',
       }),
       stroke: new Stroke({
-        color: '#FFFFFF', // Borda branca
+        color: '#FFFFFF',
         width: 2,
       }),
     });
@@ -242,7 +225,7 @@ const MapView = ({ carFilter }: MapViewProps) => {
         vectorLayer
       ],
       view: new View({
-        center: fromLonLat([-55.7148, -12.5452]), // Centralizar no primeiro ponto
+        center: fromLonLat([-55.7148, -12.5452]),
         zoom: 12
       })
     });
@@ -250,26 +233,33 @@ const MapView = ({ carFilter }: MapViewProps) => {
     // Guardar referência ao mapa
     mapInstance.current = map;
 
-    // Adicionar interatividade ao clicar nas geometrias
-    map.on('click', (event) => {
-      const feature = map.forEachFeatureAtPixel(event.pixel, function(feature) {
-        return feature;
-      });
-      
-      if (feature) {
-        const propertyId = feature.get('property_id');
-        if (propertyId && !carFilter) {
-          navigate(`/report/${propertyId}`);
+    // Se estivermos no modo modal, iniciar o desenho automaticamente
+    if (isInModal) {
+      setTimeout(() => {
+        startDrawing();
+      }, 500);
+    } else {
+      // Adicionar interatividade ao clicar nas geometrias (apenas fora do modal)
+      map.on('click', (event) => {
+        const feature = map.forEachFeatureAtPixel(event.pixel, function(feature) {
+          return feature;
+        });
+        
+        if (feature) {
+          const propertyId = feature.get('property_id');
+          if (propertyId && !carFilter) {
+            navigate(`/report/${propertyId}`);
+          }
         }
-      }
-    });
+      });
 
-    // Mudar o cursor ao passar sobre as geometrias
-    map.on('pointermove', function(e) {
-      const pixel = map.getEventPixel(e.originalEvent);
-      const hit = map.hasFeatureAtPixel(pixel);
-      map.getTargetElement().style.cursor = hit ? 'pointer' : '';
-    });
+      // Mudar o cursor ao passar sobre as geometrias
+      map.on('pointermove', function(e) {
+        const pixel = map.getEventPixel(e.originalEvent);
+        const hit = map.hasFeatureAtPixel(pixel);
+        map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+      });
+    }
 
     // Ajustar o zoom para mostrar todas as geometrias
     if (vectorSource.getFeatures().length > 0) {
@@ -293,7 +283,7 @@ const MapView = ({ carFilter }: MapViewProps) => {
         drawInteraction.current = null;
       }
     };
-  }, [carFilter, navigate, properties, isLoading, error]);
+  }, [carFilter, navigate, properties, isLoading, error, isInModal]);
 
   if (isLoading) {
     return (
@@ -316,36 +306,72 @@ const MapView = ({ carFilter }: MapViewProps) => {
   }
 
   return (
-    <div className="rounded-lg overflow-hidden shadow-md relative">
-      <div ref={mapRef} className="h-[400px] w-full" />
-      
-      {/* Botões de interação com o mapa */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2">
-        <Button
-          onClick={handleKmlUpload}
-          variant="secondary"
-          className="flex items-center gap-2 bg-white text-[#064C9F] hover:bg-[#F3F4F6]"
-          size="sm"
-        >
-          <FilePlus className="h-4 w-4" />
-          Inserir KML
-        </Button>
+    <>
+      <div className="rounded-lg overflow-hidden shadow-md relative">
+        <div ref={mapRef} className={`${isInModal ? 'h-[300px]' : 'h-[400px]'} w-full`} />
         
-        <Button
-          onClick={startDrawing}
-          variant="secondary"
-          className={`flex items-center gap-2 ${
-            isDrawing 
-              ? 'bg-[#064C9F] text-white hover:bg-[#053a79]' 
-              : 'bg-white text-[#064C9F] hover:bg-[#F3F4F6]'
-          }`}
-          size="sm"
-        >
-          <MapPin className="h-4 w-4" />
-          {isDrawing ? 'Cancelar Desenho' : 'Desenhar Área'}
-        </Button>
+        {/* Botões de interação com o mapa - apenas mostrados fora do modal */}
+        {!isInModal && (
+          <div className="absolute top-4 right-4">
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              variant="secondary"
+              className="flex items-center gap-2 bg-white text-[#064C9F] hover:bg-[#F3F4F6]"
+              size="sm"
+            >
+              <FilePlus className="h-4 w-4" />
+              Solicitar Processamento
+            </Button>
+          </div>
+        )}
+        
+        {/* Botões para o modo modal */}
+        {isInModal && !isDrawing && (
+          <div className="absolute top-4 right-4 flex flex-col gap-2">
+            <Button
+              onClick={handleKmlUpload}
+              variant="secondary"
+              className="flex items-center gap-2 bg-white text-[#064C9F] hover:bg-[#F3F4F6]"
+              size="sm"
+            >
+              <FilePlus className="h-4 w-4" />
+              Inserir KML
+            </Button>
+            
+            <Button
+              onClick={startDrawing}
+              variant="secondary"
+              className="flex items-center gap-2 bg-white text-[#064C9F] hover:bg-[#F3F4F6]"
+              size="sm"
+            >
+              Desenhar Área
+            </Button>
+          </div>
+        )}
+        
+        {/* Botão para cancelar desenho */}
+        {isInModal && isDrawing && (
+          <div className="absolute top-4 right-4">
+            <Button
+              onClick={startDrawing}
+              variant="secondary"
+              className="flex items-center gap-2 bg-[#064C9F] text-white hover:bg-[#053a79]"
+              size="sm"
+            >
+              Cancelar Desenho
+            </Button>
+          </div>
+        )}
       </div>
-    </div>
+      
+      {/* Modal de solicitação de processamento */}
+      {!isInModal && (
+        <ProcessRequestModal 
+          open={isModalOpen} 
+          onOpenChange={setIsModalOpen} 
+        />
+      )}
+    </>
   );
 };
 
