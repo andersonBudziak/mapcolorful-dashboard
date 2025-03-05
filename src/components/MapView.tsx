@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -23,9 +22,10 @@ import ProcessRequestModal from './ProcessRequestModal';
 interface MapViewProps {
   carFilter?: string;
   isInModal?: boolean;
+  onGeometryDrawn?: (geometry: any) => void;
 }
 
-const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
+const MapView = ({ carFilter, isInModal = false, onGeometryDrawn }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<Map | null>(null);
   const drawInteraction = useRef<Draw | null>(null);
@@ -50,11 +50,9 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
     }
   });
 
-  // Função para iniciar o desenho de geometria no mapa
   const startDrawing = () => {
     if (!mapInstance.current) return;
     
-    // Se já estiver desenhando, remover a interação atual
     if (drawInteraction.current) {
       mapInstance.current.removeInteraction(drawInteraction.current);
       drawInteraction.current = null;
@@ -62,7 +60,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       return;
     }
 
-    // Criar nova interação de desenho
     const source = new VectorSource();
     const layer = new VectorLayer({
       source: source,
@@ -84,12 +81,18 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       type: 'Polygon',
     });
     
-    // Adicionar evento para quando o desenho for completado
     drawInteraction.current.on('drawend', (event) => {
       const feature = event.feature;
       const geometry = feature.getGeometry();
       
       if (geometry) {
+        const format = new GeoJSON();
+        const geoJSON = JSON.parse(format.writeGeometry(geometry));
+        
+        if (onGeometryDrawn && isInModal) {
+          onGeometryDrawn(geoJSON);
+        }
+        
         toast.success('Área desenhada com sucesso!');
       }
     });
@@ -99,7 +102,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
     toast.info('Desenhe uma área no mapa para cadastrar');
   };
 
-  // Função para lidar com o upload de arquivo KML
   const handleKmlUpload = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -121,7 +123,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
           return;
         }
         
-        // Criar ou limpar fonte para o KML
         if (!kmlLayerSource.current) {
           kmlLayerSource.current = new VectorSource();
           
@@ -145,10 +146,8 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
           kmlLayerSource.current.clear();
         }
         
-        // Adicionar features do KML ao mapa
         kmlLayerSource.current.addFeatures(features);
         
-        // Ajustar visualização para mostrar todas as features
         if (mapInstance.current && kmlLayerSource.current) {
           const extent = kmlLayerSource.current.getExtent();
           mapInstance.current.getView().fit(extent, {
@@ -170,12 +169,10 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
   useEffect(() => {
     if (!mapRef.current || isLoading || error || !properties) return;
 
-    // Filtrar propriedades se houver um CAR específico
     const filteredProperties = carFilter 
       ? properties.filter(property => property.id === carFilter)
       : properties;
 
-    // Criar features GeoJSON a partir das propriedades
     const features = {
       type: 'FeatureCollection',
       features: filteredProperties.map(property => ({
@@ -188,14 +185,12 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       }))
     };
 
-    // Criar source e layer vetorial
     const vectorSource = new VectorSource({
       features: new GeoJSON().readFeatures(features, {
         featureProjection: 'EPSG:3857'
       })
     });
 
-    // Estilo para os polígonos
     const polygonStyle = new Style({
       fill: new Fill({
         color: 'rgba(255, 255, 255, 0.6)',
@@ -211,7 +206,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       style: polygonStyle,
     });
 
-    // Criar o mapa com camada base ESRI
     const map = new Map({
       target: mapRef.current,
       layers: [
@@ -230,16 +224,13 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       })
     });
 
-    // Guardar referência ao mapa
     mapInstance.current = map;
 
-    // Se estivermos no modo modal, iniciar o desenho automaticamente
     if (isInModal) {
       setTimeout(() => {
         startDrawing();
       }, 500);
     } else {
-      // Adicionar interatividade ao clicar nas geometrias (apenas fora do modal)
       map.on('click', (event) => {
         const feature = map.forEachFeatureAtPixel(event.pixel, function(feature) {
           return feature;
@@ -253,7 +244,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
         }
       });
 
-      // Mudar o cursor ao passar sobre as geometrias
       map.on('pointermove', function(e) {
         const pixel = map.getEventPixel(e.originalEvent);
         const hit = map.hasFeatureAtPixel(pixel);
@@ -261,7 +251,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       });
     }
 
-    // Ajustar o zoom para mostrar todas as geometrias
     if (vectorSource.getFeatures().length > 0) {
       const extent = vectorSource.getExtent();
       map.getView().fit(extent, {
@@ -283,7 +272,7 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
         drawInteraction.current = null;
       }
     };
-  }, [carFilter, navigate, properties, isLoading, error, isInModal]);
+  }, [carFilter, navigate, properties, isLoading, error, isInModal, onGeometryDrawn]);
 
   if (isLoading) {
     return (
@@ -310,7 +299,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
       <div className="rounded-lg overflow-hidden shadow-md relative">
         <div ref={mapRef} className={`${isInModal ? 'h-[300px]' : 'h-[400px]'} w-full`} />
         
-        {/* Botões de interação com o mapa - apenas mostrados fora do modal */}
         {!isInModal && (
           <div className="absolute top-4 right-4">
             <Button
@@ -325,7 +313,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
           </div>
         )}
         
-        {/* Botões para o modo modal */}
         {isInModal && !isDrawing && (
           <div className="absolute top-4 right-4 flex flex-col gap-2">
             <Button
@@ -349,7 +336,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
           </div>
         )}
         
-        {/* Botão para cancelar desenho */}
         {isInModal && isDrawing && (
           <div className="absolute top-4 right-4">
             <Button
@@ -364,7 +350,6 @@ const MapView = ({ carFilter, isInModal = false }: MapViewProps) => {
         )}
       </div>
       
-      {/* Modal de solicitação de processamento */}
       {!isInModal && (
         <ProcessRequestModal 
           open={isModalOpen} 

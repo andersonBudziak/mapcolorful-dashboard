@@ -13,18 +13,25 @@ interface ProcessRequestModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface GeometryData {
+  type: string;
+  coordinates: Array<any>;
+}
+
 const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) => {
   const [areaName, setAreaName] = useState('');
   const [cropType, setCropType] = useState('');
   const [season, setSeason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [kmlFile, setKmlFile] = useState<File | null>(null);
+  const [drawnGeometry, setDrawnGeometry] = useState<GeometryData | null>(null);
 
   const handleKmlUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.name.endsWith('.kml')) {
         setKmlFile(file);
+        setDrawnGeometry(null); // Limpar geometria desenhada quando KML é carregado
         toast.success(`Arquivo KML "${file.name}" carregado com sucesso`);
       } else {
         toast.error('Por favor, selecione um arquivo KML válido');
@@ -33,11 +40,22 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
     }
   };
 
+  const handleGeometryDrawn = (geometry: GeometryData) => {
+    setDrawnGeometry(geometry);
+    setKmlFile(null); // Limpar KML quando geometria é desenhada
+    toast.success('Geometria desenhada com sucesso');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!areaName || !cropType || !season) {
       toast.error('Por favor, preencha todos os campos');
+      return;
+    }
+
+    if (!kmlFile && !drawnGeometry) {
+      toast.error('Por favor, desenhe uma área no mapa ou carregue um arquivo KML');
       return;
     }
     
@@ -54,6 +72,12 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
       // Adicionar o arquivo KML se existir
       if (kmlFile) {
         formData.append('kmlFile', kmlFile);
+        formData.append('geometrySource', 'kml');
+      } 
+      // Ou adicionar a geometria desenhada
+      else if (drawnGeometry) {
+        formData.append('geometry', JSON.stringify(drawnGeometry));
+        formData.append('geometrySource', 'drawn');
       }
       
       // Enviar a solicitação para a API
@@ -76,6 +100,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
         setCropType('');
         setSeason('');
         setKmlFile(null);
+        setDrawnGeometry(null);
       } else {
         // Exibir mensagem de erro
         const errorData = await response.json().catch(() => ({ message: 'Erro ao processar a solicitação' }));
@@ -171,7 +196,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
           </div>
           
           <div className="rounded-md overflow-hidden border">
-            <MapView isInModal={true} />
+            <MapView isInModal={true} onGeometryDrawn={handleGeometryDrawn} />
           </div>
           
           <DialogFooter>
