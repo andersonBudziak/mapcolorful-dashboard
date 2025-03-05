@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -62,39 +61,32 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
     setIsProcessing(true);
     
     try {
-      // Preparar os dados para o envio
       const formData = new FormData();
       formData.append('areaName', areaName);
       formData.append('cropType', cropType);
       formData.append('season', season);
       formData.append('requestDate', new Date().toISOString());
       
-      // Adicionar o arquivo KML se existir
       if (kmlFile) {
         formData.append('kmlFile', kmlFile);
         formData.append('geometrySource', 'kml');
       } 
-      // Ou adicionar a geometria desenhada
       else if (drawnGeometry) {
         formData.append('geometry', JSON.stringify(drawnGeometry));
         formData.append('geometrySource', 'drawn');
       }
       
-      // Enviar a solicitação para a API
       const response = await fetch('http://localhost:8000/api/process-request', {
         method: 'POST',
         body: formData,
       });
       
-      // Analisar a resposta
       if (response.ok) {
         const data = await response.json();
         
-        // Exibir mensagem de sucesso
         toast.success('Solicitação de processamento enviada com sucesso!');
         toast.info('Você receberá um email quando o relatório estiver pronto.');
         
-        // Fechar o modal e resetar o formulário
         onOpenChange(false);
         setAreaName('');
         setCropType('');
@@ -102,7 +94,6 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
         setKmlFile(null);
         setDrawnGeometry(null);
       } else {
-        // Exibir mensagem de erro
         const errorData = await response.json().catch(() => ({ message: 'Erro ao processar a solicitação' }));
         toast.error(errorData.message || 'Erro ao enviar a solicitação de processamento');
       }
@@ -116,7 +107,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl bg-white">
+      <DialogContent className="sm:max-w-3xl bg-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Solicitar Processamento de Área</DialogTitle>
           <DialogDescription>
@@ -199,7 +190,7 @@ const ProcessRequestModal = ({ open, onOpenChange }: ProcessRequestModalProps) =
             <MapView isInModal={true} onGeometryDrawn={handleGeometryDrawn} />
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 pt-2 bg-white border-t mt-4">
             <Button 
               type="button" 
               variant="outline" 
